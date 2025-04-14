@@ -18,27 +18,24 @@ const ProductGrid = () => {
   const [searchParams] = useSearchParams();
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [inStockOnly, setInStockOnly] = useState(false);
   const [sortOrder, setSortOrder] = useState('');
   
   // Get the search term from URL if available
   useEffect(() => {
     const searchFromUrl = searchParams.get('search');
-    const categoryFromUrl = searchParams.get('category');
     
     if (searchFromUrl) {
       setSearchTerm(searchFromUrl);
     }
-    
-    if (categoryFromUrl) {
-      setSelectedCategory(categoryFromUrl);
-    }
   }, [searchParams]);
   
-  // Filter products based on search term, category, availability
+  // Filter products based on search term and availability
   useEffect(() => {
     let result = [...products];
+    
+    // Only show laptops
+    result = result.filter(product => product.category === 'laptops');
     
     // Filter by search term
     if (searchTerm) {
@@ -46,11 +43,6 @@ const ProductGrid = () => {
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
-    }
-    
-    // Filter by category
-    if (selectedCategory) {
-      result = result.filter(product => product.category === selectedCategory);
     }
     
     // Filter by availability
@@ -70,41 +62,25 @@ const ProductGrid = () => {
     }
     
     setFilteredProducts(result);
-  }, [searchTerm, selectedCategory, inStockOnly, sortOrder]);
+  }, [searchTerm, inStockOnly, sortOrder]);
   
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row gap-6">
         {/* Filters Sidebar */}
         <div className="w-full md:w-64 bg-white p-4 rounded-lg shadow rtl">
-          <h2 className="text-xl font-bold mb-4">تصفية المنتجات</h2>
+          <h2 className="text-xl font-bold mb-4">تصفية الحواسيب المحمولة</h2>
           
           <div className="space-y-6">
             <div>
               <Label htmlFor="search" className="mb-2 block">بحث</Label>
               <Input
                 id="search"
-                placeholder="ابحث عن منتج..."
+                placeholder="ابحث عن حاسوب محمول..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
                 className="rtl"
               />
-            </div>
-            
-            <div>
-              <Label htmlFor="category" className="mb-2 block">الفئة</Label>
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="rtl">
-                  <SelectValue placeholder="جميع الفئات" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">جميع الفئات</SelectItem>
-                  <SelectItem value="laptops">أجهزة محمولة</SelectItem>
-                  <SelectItem value="desktops">أجهزة مكتبية</SelectItem>
-                  <SelectItem value="accessories">ملحقات</SelectItem>
-                  <SelectItem value="components">مكونات</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
             
             <div>
@@ -137,7 +113,7 @@ const ProductGrid = () => {
         {/* Products Grid */}
         <div className="flex-1">
           <div className="mb-4 flex justify-between items-center">
-            <h2 className="text-2xl font-bold rtl">المنتجات</h2>
+            <h2 className="text-2xl font-bold rtl">الحواسيب المحمولة</h2>
             <p className="text-sm text-gray-600 rtl">{filteredProducts.length} منتج</p>
           </div>
           
@@ -149,7 +125,7 @@ const ProductGrid = () => {
             </div>
           ) : (
             <div className="bg-gray-100 rounded-lg p-8 text-center">
-              <p className="text-lg rtl">لم يتم العثور على منتجات</p>
+              <p className="text-lg rtl">لم يتم العثور على حواسيب محمولة</p>
             </div>
           )}
         </div>

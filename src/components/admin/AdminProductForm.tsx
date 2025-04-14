@@ -7,13 +7,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
   Card,
   CardContent,
   CardFooter,
@@ -33,7 +26,7 @@ const AdminProductForm = ({ product, onSubmit, isLoading }: AdminProductFormProp
   const [formData, setFormData] = useState<Partial<Product>>(
     product || {
       name: '',
-      category: '',
+      category: 'laptops', // Always set to laptops
       price: 0,
       oldPrice: undefined,
       image: '',
@@ -45,8 +38,7 @@ const AdminProductForm = ({ product, onSubmit, isLoading }: AdminProductFormProp
         display: ''
       },
       inStock: true,
-      description: '',
-      featured: false
+      description: ''
     }
   );
   
@@ -75,26 +67,23 @@ const AdminProductForm = ({ product, onSubmit, isLoading }: AdminProductFormProp
     setFormData(prev => ({ ...prev, [name]: checked }));
   };
   
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    // Ensure category is always laptops
+    onSubmit({...formData, category: 'laptops'});
   };
   
   return (
     <Card>
       <CardHeader>
         <CardTitle className="rtl">
-          {isEditing ? 'تعديل المنتج' : 'إضافة منتج جديد'}
+          {isEditing ? 'تعديل المنتج' : 'إضافة حاسوب محمول جديد'}
         </CardTitle>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4 rtl">
           <div className="space-y-2">
-            <Label htmlFor="name">اسم المنتج</Label>
+            <Label htmlFor="name">اسم الحاسوب المحمول</Label>
             <Input
               id="name"
               name="name"
@@ -104,24 +93,8 @@ const AdminProductForm = ({ product, onSubmit, isLoading }: AdminProductFormProp
             />
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="category">الفئة</Label>
-            <Select 
-              value={formData.category}
-              onValueChange={(value) => handleSelectChange('category', value)}
-              required
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="اختر الفئة" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="laptops">أجهزة محمولة</SelectItem>
-                <SelectItem value="desktops">أجهزة مكتبية</SelectItem>
-                <SelectItem value="accessories">ملحقات</SelectItem>
-                <SelectItem value="components">مكونات</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          {/* Hidden field for category - always laptops */}
+          <input type="hidden" name="category" value="laptops" />
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -234,15 +207,6 @@ const AdminProductForm = ({ product, onSubmit, isLoading }: AdminProductFormProp
             />
             <Label htmlFor="inStock">متوفر في المخزون</Label>
           </div>
-          
-          <div className="flex items-center space-x-2 rtl">
-            <Checkbox 
-              id="featured" 
-              checked={formData.featured}
-              onCheckedChange={(checked) => handleCheckboxChange('featured', checked as boolean)}
-            />
-            <Label htmlFor="featured">منتج مميز</Label>
-          </div>
         </CardContent>
         <CardFooter>
           <Button type="submit" className="w-full rtl" disabled={isLoading}>
@@ -250,7 +214,7 @@ const AdminProductForm = ({ product, onSubmit, isLoading }: AdminProductFormProp
               ? 'جاري الحفظ...' 
               : isEditing 
                 ? 'حفظ التغييرات' 
-                : 'إضافة المنتج'
+                : 'إضافة الحاسوب المحمول'
             }
           </Button>
         </CardFooter>
