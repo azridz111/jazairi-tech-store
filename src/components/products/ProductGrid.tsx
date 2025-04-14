@@ -98,7 +98,7 @@ const ProductGrid = () => {
                   <SelectValue placeholder="جميع الفئات" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">جميع الفئات</SelectItem>
+                  <SelectItem value="all">جميع الفئات</SelectItem>
                   <SelectItem value="laptops">أجهزة محمولة</SelectItem>
                   <SelectItem value="desktops">أجهزة مكتبية</SelectItem>
                   <SelectItem value="accessories">ملحقات</SelectItem>
@@ -114,7 +114,7 @@ const ProductGrid = () => {
                   <SelectValue placeholder="الترتيب الافتراضي" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">الترتيب الافتراضي</SelectItem>
+                  <SelectItem value="default">الترتيب الافتراضي</SelectItem>
                   <SelectItem value="price-asc">السعر: من الأقل إلى الأعلى</SelectItem>
                   <SelectItem value="price-desc">السعر: من الأعلى إلى الأقل</SelectItem>
                   <SelectItem value="name-asc">الاسم: أ-ي</SelectItem>

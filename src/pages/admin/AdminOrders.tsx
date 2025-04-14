@@ -19,8 +19,19 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
+type OrderStatus = 'processing' | 'completed' | 'cancelled';
+
+interface Order {
+  id: number;
+  date: string;
+  customer: string;
+  total: number;
+  status: OrderStatus;
+  items: number;
+}
+
 // Mock orders data - in a real app this would come from an API
-const mockOrders = [
+const mockOrders: Order[] = [
   {
     id: 12345,
     date: '2023-04-15',
@@ -62,17 +73,6 @@ const mockOrders = [
     items: 1
   }
 ];
-
-type OrderStatus = 'processing' | 'completed' | 'cancelled';
-
-interface Order {
-  id: number;
-  date: string;
-  customer: string;
-  total: number;
-  status: OrderStatus;
-  items: number;
-}
 
 const AdminOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -152,7 +152,7 @@ const AdminOrders = () => {
                 <SelectValue placeholder="جميع الحالات" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">جميع الحالات</SelectItem>
+                <SelectItem value="all">جميع الحالات</SelectItem>
                 <SelectItem value="processing">قيد المعالجة</SelectItem>
                 <SelectItem value="completed">مكتمل</SelectItem>
                 <SelectItem value="cancelled">ملغي</SelectItem>
