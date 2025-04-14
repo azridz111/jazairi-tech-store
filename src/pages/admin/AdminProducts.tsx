@@ -14,11 +14,9 @@ const AdminProducts = () => {
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    // Simulate loading products from API
-    setTimeout(() => {
-      setProducts(initialProducts);
-      setLoading(false);
-    }, 500);
+    // تحميل المنتجات
+    setProducts(initialProducts);
+    setLoading(false);
   }, []);
   
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,9 +28,13 @@ const AdminProducts = () => {
   );
   
   const handleDelete = (id: number) => {
-    // Confirm before deleting
+    // التأكيد قبل الحذف
     if (window.confirm('هل أنت متأكد من رغبتك في حذف هذا المنتج؟')) {
       setProducts(products.filter(product => product.id !== id));
+      
+      // في تطبيق حقيقي، هنا ستقوم بإرسال طلب للواجهة الخلفية لحذف المنتج
+      // لكن حاليًا نحن نقوم بتحديث حالة التطبيق المحلية فقط
+      
       toast.success('تم حذف المنتج بنجاح');
     }
   };

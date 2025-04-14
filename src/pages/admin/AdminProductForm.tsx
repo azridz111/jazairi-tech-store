@@ -6,6 +6,11 @@ import { Product, products as initialProducts } from '@/data/products';
 import AdminProductFormComponent from '@/components/admin/AdminProductForm';
 import { toast } from 'sonner';
 
+// متغير عالمي لتتبع آخر معرف تم استخدامه
+let lastId = initialProducts.length > 0 
+  ? Math.max(...initialProducts.map(p => p.id)) 
+  : 0;
+
 const AdminProductForm = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -17,35 +22,45 @@ const AdminProductForm = () => {
   
   useEffect(() => {
     if (isEditing) {
-      // Simulate API call to fetch product
-      setTimeout(() => {
-        const productId = parseInt(id);
-        const foundProduct = initialProducts.find(p => p.id === productId);
-        
-        if (foundProduct) {
-          setProduct(foundProduct);
-        } else {
-          toast.error('المنتج غير موجود');
-          navigate('/admin/products');
-        }
-        
-        setLoading(false);
-      }, 500);
-    } else {
-      setLoading(false);
+      const productId = parseInt(id!);
+      const foundProduct = initialProducts.find(p => p.id === productId);
+      
+      if (foundProduct) {
+        setProduct(foundProduct);
+      } else {
+        toast.error('المنتج غير موجود');
+        navigate('/admin/products');
+      }
     }
+    
+    setLoading(false);
   }, [id, isEditing, navigate]);
   
   const handleSubmit = async (productData: Partial<Product>) => {
     setSubmitting(true);
     
-    // Simulate API call to save product
     try {
+      // محاكاة للاتصال بالخادم
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      if (isEditing) {
-        toast.success('تم تحديث المنتج بنجاح');
+      if (isEditing && product) {
+        // تحديث منتج موجود
+        const updatedProduct = { ...product, ...productData };
+        const index = initialProducts.findIndex(p => p.id === product.id);
+        
+        if (index !== -1) {
+          initialProducts[index] = updatedProduct;
+          toast.success('تم تحديث المنتج بنجاح');
+        }
       } else {
+        // إنشاء منتج جديد
+        const newId = ++lastId;
+        const newProduct = { 
+          id: newId,
+          ...productData
+        } as Product;
+        
+        initialProducts.push(newProduct);
         toast.success('تم إضافة المنتج بنجاح');
       }
       

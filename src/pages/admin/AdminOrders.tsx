@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Eye } from 'lucide-react';
+import { Eye, Trash2, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { toast } from 'sonner';
 
 type OrderStatus = 'processing' | 'completed' | 'cancelled';
 
@@ -30,76 +31,74 @@ interface Order {
   items: number;
 }
 
-// Mock orders data - in a real app this would come from an API
-const mockOrders: Order[] = [
-  {
-    id: 12345,
-    date: '2023-04-15',
-    customer: 'محمد أحمد',
-    total: 175000,
-    status: 'completed',
-    items: 2
-  },
-  {
-    id: 12346,
-    date: '2023-04-12',
-    customer: 'علي محمد',
-    total: 92000,
-    status: 'processing',
-    items: 1
-  },
-  {
-    id: 12347,
-    date: '2023-04-10',
-    customer: 'فاطمة علي',
-    total: 252000,
-    status: 'completed',
-    items: 1
-  },
-  {
-    id: 12348,
-    date: '2023-04-08',
-    customer: 'أحمد خالد',
-    total: 175000,
-    status: 'processing',
-    items: 2
-  },
-  {
-    id: 12349,
-    date: '2023-04-05',
-    customer: 'سارة محمد',
-    total: 150000,
-    status: 'cancelled',
-    items: 1
-  }
-];
+// قائمة طلبات فارغة للبدء بها
+const mockOrders: Order[] = [];
+
+// متغير لتتبع آخر معرف طلب
+let lastOrderId = 1000;
 
 const AdminOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   
   useEffect(() => {
-    // Simulate loading orders from API
-    setTimeout(() => {
-      setOrders(mockOrders);
-      setLoading(false);
-    }, 500);
+    // تحميل الطلبات
+    setOrders(mockOrders);
+    setLoading(false);
   }, []);
   
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
   
+  const handleDeleteOrder = (id: number) => {
+    if (window.confirm('هل أنت متأكد من حذف هذا الطلب؟')) {
+      setOrders(prev => prev.filter(order => order.id !== id));
+      toast.success('تم حذف الطلب بنجاح');
+    }
+  };
+  
+  const handleChangeOrderStatus = (id: number, newStatus: OrderStatus) => {
+    setOrders(prev => 
+      prev.map(order => 
+        order.id === id 
+          ? { ...order, status: newStatus } 
+          : order
+      )
+    );
+    
+    const statusText = 
+      newStatus === 'completed' ? 'مكتمل' : 
+      newStatus === 'processing' ? 'قيد المعالجة' : 'ملغي';
+    
+    toast.success(`تم تغيير حالة الطلب إلى ${statusText}`);
+  };
+  
+  // وظيفة لإضافة طلب اختباري جديد
+  const addTestOrder = () => {
+    const newOrder: Order = {
+      id: ++lastOrderId,
+      date: new Date().toISOString().split('T')[0],
+      customer: 'عميل جديد',
+      total: Math.floor(Math.random() * 300000) + 50000,
+      status: 'processing',
+      items: Math.floor(Math.random() * 5) + 1
+    };
+    
+    setOrders(prev => [...prev, newOrder]);
+    toast.success('تم إضافة طلب اختباري جديد');
+  };
+  
   const filteredOrders = orders.filter(order => {
-    // Filter by search term
+    // تصفية حسب البحث
     const matchesSearch = 
       order.id.toString().includes(searchTerm) ||
       order.customer.toLowerCase().includes(searchTerm.toLowerCase());
     
-    // Filter by status
-    const matchesStatus = statusFilter ? order.status === statusFilter : true;
+    // تصفية حسب الحالة
+    const matchesStatus = statusFilter && statusFilter !== 'all' ? order.status === statusFilter : true;
     
     return matchesSearch && matchesStatus;
   });
@@ -138,27 +137,33 @@ const AdminOrders = () => {
       </div>
       
       <div className="bg-white rounded-lg shadow-md mb-6">
-        <div className="p-4 border-b flex flex-col md:flex-row gap-4 md:items-center rtl">
-          <Input
-            placeholder="ابحث برقم الطلب أو اسم العميل..."
-            value={searchTerm}
-            onChange={handleSearch}
-            className="max-w-md"
-          />
-          
-          <div className="md:ml-4 w-full md:w-48">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="جميع الحالات" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">جميع الحالات</SelectItem>
-                <SelectItem value="processing">قيد المعالجة</SelectItem>
-                <SelectItem value="completed">مكتمل</SelectItem>
-                <SelectItem value="cancelled">ملغي</SelectItem>
-              </SelectContent>
-            </Select>
+        <div className="p-4 border-b flex flex-col md:flex-row gap-4 md:items-center justify-between rtl">
+          <div className="flex flex-col md:flex-row gap-4 md:items-center">
+            <Input
+              placeholder="ابحث برقم الطلب أو اسم العميل..."
+              value={searchTerm}
+              onChange={handleSearch}
+              className="max-w-md"
+            />
+            
+            <div className="md:ml-4 w-full md:w-48">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="جميع الحالات" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">جميع الحالات</SelectItem>
+                  <SelectItem value="processing">قيد المعالجة</SelectItem>
+                  <SelectItem value="completed">مكتمل</SelectItem>
+                  <SelectItem value="cancelled">ملغي</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
+          
+          <Button onClick={addTestOrder} className="rtl">
+            إضافة طلب اختباري
+          </Button>
         </div>
         
         {loading ? (
@@ -193,10 +198,46 @@ const AdminOrders = () => {
                       </span>
                     </TableCell>
                     <TableCell>
-                      <Button variant="outline" size="sm" className="rtl">
-                        <Eye className="h-4 w-4 ml-1" />
-                        عرض التفاصيل
-                      </Button>
+                      <div className="flex space-x-2 rtl space-x-reverse">
+                        <Button variant="outline" size="sm" className="rtl">
+                          <Eye className="h-4 w-4 ml-1" />
+                          عرض
+                        </Button>
+                        
+                        {order.status === 'processing' && (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="text-green-600 border-green-600 hover:bg-green-50"
+                            onClick={() => handleChangeOrderStatus(order.id, 'completed')}
+                          >
+                            <CheckCircle className="h-4 w-4 ml-1" />
+                            إكمال
+                          </Button>
+                        )}
+                        
+                        {order.status === 'processing' && (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="text-red-600 border-red-600 hover:bg-red-50"
+                            onClick={() => handleChangeOrderStatus(order.id, 'cancelled')}
+                          >
+                            <XCircle className="h-4 w-4 ml-1" />
+                            إلغاء
+                          </Button>
+                        )}
+                        
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className="text-red-600 border-red-600 hover:bg-red-50"
+                          onClick={() => handleDeleteOrder(order.id)}
+                        >
+                          <Trash2 className="h-4 w-4 ml-1" />
+                          حذف
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
