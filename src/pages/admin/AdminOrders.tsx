@@ -31,11 +31,24 @@ interface Order {
   items: number;
 }
 
+// استرجاع قائمة الطلبات من localStorage إذا كانت موجودة
+const getStoredOrders = (): Order[] => {
+  const storedOrders = localStorage.getItem('orders');
+  return storedOrders ? JSON.parse(storedOrders) : [];
+};
+
+// حفظ قائمة الطلبات في localStorage
+const saveOrders = (orders: Order[]) => {
+  localStorage.setItem('orders', JSON.stringify(orders));
+};
+
 // قائمة طلبات فارغة للبدء بها
-const mockOrders: Order[] = [];
+const mockOrders: Order[] = getStoredOrders();
 
 // متغير لتتبع آخر معرف طلب
-let lastOrderId = 1000;
+let lastOrderId = mockOrders.length > 0 
+  ? Math.max(...mockOrders.map(order => order.id)) 
+  : 1000;
 
 const AdminOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -55,7 +68,16 @@ const AdminOrders = () => {
   
   const handleDeleteOrder = (id: number) => {
     if (window.confirm('هل أنت متأكد من حذف هذا الطلب؟')) {
-      setOrders(prev => prev.filter(order => order.id !== id));
+      const updatedOrders = orders.filter(order => order.id !== id);
+      setOrders(updatedOrders);
+      
+      // تحديث قائمة الطلبات العامة وحفظها في localStorage
+      const index = mockOrders.findIndex(order => order.id === id);
+      if (index !== -1) {
+        mockOrders.splice(index, 1);
+        saveOrders(mockOrders);
+      }
+      
       toast.success('تم حذف الطلب بنجاح');
     }
   };
@@ -68,6 +90,13 @@ const AdminOrders = () => {
           : order
       )
     );
+    
+    // تحديث قائمة الطلبات العامة وحفظها في localStorage
+    const index = mockOrders.findIndex(order => order.id === id);
+    if (index !== -1) {
+      mockOrders[index].status = newStatus;
+      saveOrders(mockOrders);
+    }
     
     const statusText = 
       newStatus === 'completed' ? 'مكتمل' : 
@@ -87,7 +116,13 @@ const AdminOrders = () => {
       items: Math.floor(Math.random() * 5) + 1
     };
     
+    // تحديث حالة التطبيق المحلية
     setOrders(prev => [...prev, newOrder]);
+    
+    // تحديث قائمة الطلبات العامة وحفظها في localStorage
+    mockOrders.push(newOrder);
+    saveOrders(mockOrders);
+    
     toast.success('تم إضافة طلب اختباري جديد');
   };
   
