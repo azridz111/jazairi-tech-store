@@ -4,18 +4,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>تيك ستور الجزائر - متجر أجهزة الكمبيوتر</title>
-    <meta name="description" content="متجر تيك ستور الجزائر - أفضل أجهزة الكمبيوتر والإلكترونيات في الجزائر بأسعار تنافسية" />
+    <title>تسجيل الدخول - تيك ستور الجزائر</title>
+    <meta name="description" content="تسجيل الدخول إلى حسابك في تيك ستور الجزائر" />
     <meta name="author" content="تيك ستور الجزائر" />
-
-    <meta property="og:title" content="تيك ستور الجزائر - متجر أجهزة الكمبيوتر" />
-    <meta property="og:description" content="متجر تيك ستور الجزائر - أفضل أجهزة الكمبيوتر والإلكترونيات في الجزائر بأسعار تنافسية" />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@lovable_dev" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
     
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
@@ -84,88 +75,48 @@
     </div>
 
     <!-- Main Content -->
-    <main>
-      <!-- Hero Section -->
-      <section class="hero">
-        <div class="overlay"></div>
-        <div class="container">
-          <div class="hero-content">
-            <h1>أفضل أجهزة الكمبيوتر والإلكترونيات في الجزائر</h1>
-            <p>اكتشف تشكيلتنا الواسعة من أحدث أجهزة الكمبيوتر المحمولة والمكتبية وملحقاتها بأسعار تنافسية وجودة عالية.</p>
-            <div class="hero-buttons">
-              <a href="products.html" class="button primary">
-                تسوق الآن
-                <i data-lucide="arrow-left"></i>
-              </a>
-              <a href="products.html" class="button secondary">أجهزة محمولة</a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Featured Products -->
-      <section class="products-section">
-        <div class="container">
-          <div class="section-header">
-            <h2>الحواسيب المحمولة</h2>
-            <a href="products.html" class="view-all-link">
-              عرض الكل
-              <i data-lucide="chevron-left"></i>
-            </a>
+    <main class="bg-gray-50 py-12">
+      <div class="container">
+        <div class="max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+          <div class="py-4 px-6 bg-algerian-green text-white text-center">
+            <h2 class="text-xl font-bold">تسجيل الدخول</h2>
+            <p class="text-sm opacity-90">قم بتسجيل الدخول للوصول إلى حسابك</p>
           </div>
           
-          <div id="featured-products" class="products-grid">
-            <!-- Products will be loaded dynamically -->
-            <p class="loading-text">جاري تحميل المنتجات...</p>
-          </div>
-          
-          <div class="mobile-view-all">
-            <a href="products.html" class="button outline">
-              عرض جميع الحواسيب المحمولة
-              <i data-lucide="chevron-left"></i>
-            </a>
-          </div>
+          <form id="login-form" class="p-6">
+            <div class="mb-4">
+              <label for="username" class="block text-sm font-medium mb-1">اسم المستخدم</label>
+              <input
+                id="username"
+                type="text"
+                required
+                class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-algerian-green"
+              >
+            </div>
+            
+            <div class="mb-6">
+              <label for="password" class="block text-sm font-medium mb-1">كلمة المرور</label>
+              <input
+                id="password"
+                type="password"
+                required
+                class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-algerian-green"
+              >
+            </div>
+            
+            <div class="text-sm text-gray-500 mb-4">
+              <p>للتجربة: استخدم admin / admin123 (كمدير) أو user / user123 (كمستخدم عادي)</p>
+            </div>
+            
+            <button
+              type="submit"
+              class="w-full bg-algerian-green text-white py-2 rounded font-medium hover:bg-algerian-green-hover transition-colors"
+            >
+              تسجيل الدخول
+            </button>
+          </form>
         </div>
-      </section>
-
-      <!-- Features Section -->
-      <section class="features-section">
-        <div class="container">
-          <div class="features-grid">
-            <div class="feature-card">
-              <div class="feature-icon">
-                <i data-lucide="truck"></i>
-              </div>
-              <h3>توصيل سريع</h3>
-              <p>نوصل لجميع ولايات الجزائر</p>
-            </div>
-            
-            <div class="feature-card">
-              <div class="feature-icon">
-                <i data-lucide="shield-check"></i>
-              </div>
-              <h3>ضمان جودة</h3>
-              <p>جميع منتجاتنا أصلية ومضمونة</p>
-            </div>
-            
-            <div class="feature-card">
-              <div class="feature-icon">
-                <i data-lucide="refresh-cw"></i>
-              </div>
-              <h3>استبدال سهل</h3>
-              <p>استبدال المنتج خلال 14 يوم</p>
-            </div>
-            
-            <div class="feature-card">
-              <div class="feature-icon">
-                <i data-lucide="phone-call"></i>
-              </div>
-              <h3>دعم فني</h3>
-              <p>فريق دعم متخصص لمساعدتك</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      </div>
     </main>
 
     <!-- Footer -->

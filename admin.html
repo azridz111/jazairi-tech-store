@@ -1,0 +1,393 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>لوحة التحكم - تيك ستور الجزائر</title>
+    <meta name="description" content="لوحة تحكم الإدارة في تيك ستور الجزائر" />
+    <meta name="author" content="تيك ستور الجزائر" />
+    
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+      /* Admin specific styles */
+      .admin-layout {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        padding: 2rem 0;
+      }
+      
+      .admin-form {
+        background-color: white;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      
+      .admin-form-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 1.5rem;
+        color: var(--algerian-green);
+      }
+      
+      .form-group {
+        margin-bottom: 1rem;
+      }
+      
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+      }
+      
+      .form-control {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+      }
+      
+      textarea.form-control {
+        min-height: 100px;
+      }
+      
+      .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: white;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      
+      .admin-table th {
+        background-color: var(--light-gray);
+        padding: 0.75rem 1rem;
+        text-align: right;
+        font-weight: 600;
+      }
+      
+      .admin-table td {
+        padding: 0.75rem 1rem;
+        border-top: 1px solid var(--border-color);
+      }
+      
+      .admin-product-image {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 0.25rem;
+      }
+      
+      .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+      }
+      
+      .edit-button, .stock-button, .delete-button {
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        display: flex;
+        align-items: center;
+        font-size: 0.875rem;
+      }
+      
+      .edit-button {
+        background-color: var(--light-gray);
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+      }
+      
+      .stock-button {
+        background-color: var(--white);
+        color: var(--algerian-green);
+        border: 1px solid var(--algerian-green);
+      }
+      
+      .delete-button {
+        background-color: var(--white);
+        color: var(--algerian-red);
+        border: 1px solid var(--algerian-red);
+      }
+      
+      .edit-button:hover {
+        background-color: var(--medium-gray);
+      }
+      
+      .stock-button:hover {
+        background-color: var(--algerian-green);
+        color: var(--white);
+      }
+      
+      .delete-button:hover {
+        background-color: var(--algerian-red);
+        color: var(--white);
+      }
+      
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.5rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+      
+      .status-badge i {
+        margin-left: 0.25rem;
+      }
+      
+      .status-badge.in-stock {
+        background-color: rgba(16, 185, 129, 0.1);
+        color: rgb(16, 185, 129);
+      }
+      
+      .status-badge.out-of-stock {
+        background-color: rgba(239, 68, 68, 0.1);
+        color: rgb(239, 68, 68);
+      }
+      
+      @media (min-width: 1024px) {
+        .admin-layout {
+          grid-template-columns: 2fr 3fr;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Header Section -->
+    <header class="header">
+      <div class="container">
+        <div class="header-content">
+          <div class="header-left">
+            <button id="mobile-menu-toggle" class="menu-toggle">
+              <i data-lucide="menu"></i>
+            </button>
+            <a href="index.html" class="logo">
+              <i data-lucide="store" class="logo-icon"></i>
+              <span>تيك ستور الجزائر</span>
+            </a>
+          </div>
+
+          <nav class="main-nav">
+            <a href="index.html" class="nav-link">الرئيسية</a>
+            <a href="products.html" class="nav-link">المنتجات</a>
+            <a href="admin.html" id="admin-link" class="nav-link" style="display: none;">لوحة التحكم</a>
+          </nav>
+
+          <div class="header-right">
+            <form id="search-form" class="search-form">
+              <input type="search" id="search-input" placeholder="ابحث عن منتج...">
+              <button type="submit" class="search-button">
+                <i data-lucide="search"></i>
+              </button>
+            </form>
+            
+            <a href="cart.html" class="icon-button cart-button">
+              <i data-lucide="shopping-cart"></i>
+              <span id="cart-badge" class="cart-badge">0</span>
+            </a>
+            
+            <div id="auth-buttons">
+              <a href="login.html" class="icon-button" title="تسجيل الدخول">
+                <i data-lucide="log-in"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="mobile-menu">
+      <div class="mobile-menu-header">
+        <h2>القائمة</h2>
+        <button id="close-menu-button">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <nav class="mobile-nav">
+        <a href="index.html">الرئيسية</a>
+        <a href="products.html">المنتجات</a>
+        <a href="admin.html" id="mobile-admin-link" style="display: none;">لوحة التحكم</a>
+        <a href="login.html" id="mobile-login-link">تسجيل الدخول</a>
+        <button id="mobile-logout-button" style="display: none;">تسجيل الخروج</button>
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <main>
+      <div class="container">
+        <h1 class="text-2xl font-bold mt-8 mb-6">لوحة التحكم</h1>
+        
+        <div class="admin-layout">
+          <!-- Add Product Form -->
+          <div class="admin-form">
+            <h2 class="admin-form-title">إضافة حاسوب محمول جديد</h2>
+            
+            <form id="add-product-form">
+              <div class="form-group">
+                <label for="product-name">اسم الحاسوب المحمول</label>
+                <input type="text" id="product-name" class="form-control" required>
+              </div>
+              
+              <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                  <label for="product-price">السعر (د.ج)</label>
+                  <input type="number" id="product-price" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="product-oldprice">السعر القديم (اختياري)</label>
+                  <input type="number" id="product-oldprice" class="form-control">
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="product-image">رابط الصورة</label>
+                <input type="url" id="product-image" class="form-control" required>
+              </div>
+              
+              <h3 class="text-lg font-medium mb-3 mt-4">المواصفات</h3>
+              
+              <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                  <label for="product-processor">المعالج</label>
+                  <input type="text" id="product-processor" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="product-ram">الذاكرة العشوائية</label>
+                  <input type="text" id="product-ram" class="form-control" required>
+                </div>
+              </div>
+              
+              <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                  <label for="product-storage">التخزين</label>
+                  <input type="text" id="product-storage" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="product-gpu">بطاقة الرسوميات</label>
+                  <input type="text" id="product-gpu" class="form-control" required>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="product-display">الشاشة</label>
+                <input type="text" id="product-display" class="form-control" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="product-description">الوصف</label>
+                <textarea id="product-description" class="form-control" required></textarea>
+              </div>
+              
+              <div class="form-group">
+                <div class="checkbox-group">
+                  <input type="checkbox" id="product-instock" checked>
+                  <label for="product-instock">متوفر في المخزون</label>
+                </div>
+              </div>
+              
+              <button type="submit" class="button primary w-full">إضافة الحاسوب المحمول</button>
+            </form>
+          </div>
+          
+          <!-- Products Table -->
+          <div>
+            <h2 class="admin-form-title">إدارة الحواسيب المحمولة</h2>
+            
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>الصورة</th>
+                    <th>اسم المنتج</th>
+                    <th>السعر</th>
+                    <th>المخزون</th>
+                    <th>إجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-products-container">
+                  <!-- Products will be loaded dynamically -->
+                  <tr>
+                    <td colspan="5" class="text-center">جاري تحميل المنتجات...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-grid">
+          <div class="footer-column">
+            <h3>تيك ستور الجزائر</h3>
+            <p>متجرك المفضل للكمبيوتر والإلكترونيات في الجزائر، نوفر أحدث المنتجات بأفضل الأسعار.</p>
+            <div class="social-links">
+              <a href="#" aria-label="Facebook">
+                <i data-lucide="facebook"></i>
+              </a>
+              <a href="#" aria-label="Instagram">
+                <i data-lucide="instagram"></i>
+              </a>
+              <a href="#" aria-label="Twitter">
+                <i data-lucide="twitter"></i>
+              </a>
+            </div>
+          </div>
+          
+          <div class="footer-column">
+            <h3>روابط سريعة</h3>
+            <ul>
+              <li><a href="index.html">الرئيسية</a></li>
+              <li><a href="products.html">المنتجات</a></li>
+              <li><a href="cart.html">سلة التسوق</a></li>
+              <li><a href="login.html">تسجيل الدخول</a></li>
+            </ul>
+          </div>
+          
+          <div class="footer-column">
+            <h3>اتصل بنا</h3>
+            <ul class="contact-list">
+              <li>
+                <i data-lucide="map-pin"></i>
+                <span>شارع ديدوش مراد، الجزائر العاصمة</span>
+              </li>
+              <li>
+                <i data-lucide="phone"></i>
+                <span>+213 XX XX XX XX</span>
+              </li>
+              <li>
+                <i data-lucide="mail"></i>
+                <span>info@techstore-dz.com</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="footer-bottom">
+          <p>&copy; <span id="current-year"></span> تيك ستور الجزائر. جميع الحقوق محفوظة.</p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container"></div>
+
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>

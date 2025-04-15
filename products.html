@@ -4,18 +4,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>تيك ستور الجزائر - متجر أجهزة الكمبيوتر</title>
-    <meta name="description" content="متجر تيك ستور الجزائر - أفضل أجهزة الكمبيوتر والإلكترونيات في الجزائر بأسعار تنافسية" />
+    <title>المنتجات - تيك ستور الجزائر</title>
+    <meta name="description" content="تصفح حواسيب محمولة عالية الجودة في تيك ستور الجزائر" />
     <meta name="author" content="تيك ستور الجزائر" />
-
-    <meta property="og:title" content="تيك ستور الجزائر - متجر أجهزة الكمبيوتر" />
-    <meta property="og:description" content="متجر تيك ستور الجزائر - أفضل أجهزة الكمبيوتر والإلكترونيات في الجزائر بأسعار تنافسية" />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@lovable_dev" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
     
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
@@ -85,83 +76,60 @@
 
     <!-- Main Content -->
     <main>
-      <!-- Hero Section -->
-      <section class="hero">
-        <div class="overlay"></div>
+      <!-- Page Banner -->
+      <div class="page-banner">
         <div class="container">
-          <div class="hero-content">
-            <h1>أفضل أجهزة الكمبيوتر والإلكترونيات في الجزائر</h1>
-            <p>اكتشف تشكيلتنا الواسعة من أحدث أجهزة الكمبيوتر المحمولة والمكتبية وملحقاتها بأسعار تنافسية وجودة عالية.</p>
-            <div class="hero-buttons">
-              <a href="products.html" class="button primary">
-                تسوق الآن
-                <i data-lucide="arrow-left"></i>
-              </a>
-              <a href="products.html" class="button secondary">أجهزة محمولة</a>
-            </div>
-          </div>
+          <h1 class="text-3xl font-bold mb-2">الحواسيب المحمولة</h1>
+          <p>تصفح مجموعتنا الواسعة من الحواسيب المحمولة عالية الأداء</p>
         </div>
-      </section>
+      </div>
 
-      <!-- Featured Products -->
-      <section class="products-section">
-        <div class="container">
-          <div class="section-header">
-            <h2>الحواسيب المحمولة</h2>
-            <a href="products.html" class="view-all-link">
-              عرض الكل
-              <i data-lucide="chevron-left"></i>
-            </a>
+      <!-- Products Section -->
+      <section class="container py-8">
+        <div class="products-page-layout">
+          <!-- Filters Sidebar -->
+          <div class="filters-sidebar">
+            <h2 class="text-xl font-bold mb-4">تصفية المنتجات</h2>
+            
+            <div class="filter-group">
+              <label for="search-input">بحث</label>
+              <input
+                id="search-input"
+                type="search"
+                placeholder="ابحث عن حاسوب محمول..."
+                class="w-full"
+              />
+            </div>
+            
+            <div class="filter-group">
+              <label for="sort-select">الترتيب</label>
+              <select id="sort-select">
+                <option value="default">الترتيب الافتراضي</option>
+                <option value="price-asc">السعر: من الأقل إلى الأعلى</option>
+                <option value="price-desc">السعر: من الأعلى إلى الأقل</option>
+                <option value="name-asc">الاسم: أ-ي</option>
+                <option value="name-desc">الاسم: ي-أ</option>
+              </select>
+            </div>
+            
+            <div class="filter-group">
+              <div class="checkbox-group">
+                <input type="checkbox" id="in-stock-checkbox">
+                <label for="in-stock-checkbox">المنتجات المتوفرة فقط</label>
+              </div>
+            </div>
           </div>
           
-          <div id="featured-products" class="products-grid">
-            <!-- Products will be loaded dynamically -->
-            <p class="loading-text">جاري تحميل المنتجات...</p>
-          </div>
-          
-          <div class="mobile-view-all">
-            <a href="products.html" class="button outline">
-              عرض جميع الحواسيب المحمولة
-              <i data-lucide="chevron-left"></i>
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <!-- Features Section -->
-      <section class="features-section">
-        <div class="container">
-          <div class="features-grid">
-            <div class="feature-card">
-              <div class="feature-icon">
-                <i data-lucide="truck"></i>
-              </div>
-              <h3>توصيل سريع</h3>
-              <p>نوصل لجميع ولايات الجزائر</p>
+          <!-- Products Grid -->
+          <div>
+            <div class="mb-4 flex justify-between items-center">
+              <h2 class="text-2xl font-bold">الحواسيب المحمولة</h2>
+              <p class="text-sm text-gray-600"><span id="product-count">0</span> منتج</p>
             </div>
             
-            <div class="feature-card">
-              <div class="feature-icon">
-                <i data-lucide="shield-check"></i>
-              </div>
-              <h3>ضمان جودة</h3>
-              <p>جميع منتجاتنا أصلية ومضمونة</p>
-            </div>
-            
-            <div class="feature-card">
-              <div class="feature-icon">
-                <i data-lucide="refresh-cw"></i>
-              </div>
-              <h3>استبدال سهل</h3>
-              <p>استبدال المنتج خلال 14 يوم</p>
-            </div>
-            
-            <div class="feature-card">
-              <div class="feature-icon">
-                <i data-lucide="phone-call"></i>
-              </div>
-              <h3>دعم فني</h3>
-              <p>فريق دعم متخصص لمساعدتك</p>
+            <div id="products-container" class="products-grid">
+              <!-- Products will be loaded dynamically -->
+              <p class="loading-text">جاري تحميل المنتجات...</p>
             </div>
           </div>
         </div>
