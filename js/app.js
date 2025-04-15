@@ -1,4 +1,3 @@
-
 // Global state
 let cart = [];
 let products = [];
@@ -13,17 +12,18 @@ const STORAGE_KEYS = {
 };
 
 // DOM Elements
-const cartBadge = document.getElementById('cart-badge');
-const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+const cartBadge = document.querySelector('.cart-count');
+const mobileMenuButton = document.getElementById('mobile-menu-button');
 const mobileMenu = document.getElementById('mobile-menu');
-const closeMobileMenuButton = document.getElementById('close-menu-button');
-const currentYearSpan = document.getElementById('current-year');
+const closeMenuButton = document.getElementById('close-menu-button');
+const addToCartButtons = document.querySelectorAll('.add-to-cart');
 const searchForm = document.getElementById('search-form');
 const authButtons = document.getElementById('auth-buttons');
 const adminLink = document.getElementById('admin-link');
 const mobileAdminLink = document.getElementById('mobile-admin-link');
 const mobileLoginLink = document.getElementById('mobile-login-link');
 const mobileLogoutButton = document.getElementById('mobile-logout-button');
+const currentYearSpan = document.getElementById('current-year');
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', initApp);
@@ -38,9 +38,9 @@ function initApp() {
   initIcons();
   loadCart();
   loadUser();
-  updateCurrentYear();
   setupEventListeners();
   loadProducts();
+  setupAddToCartButtons();
   
   const currentPath = window.location.pathname;
   if (currentPath.includes('index.html') || currentPath === '/') {
@@ -62,23 +62,52 @@ function initApp() {
   }
 }
 
+// Setup add to cart buttons
+function setupAddToCartButtons() {
+  document.querySelectorAll('.add-to-cart').forEach(button => {
+    button.addEventListener('click', function() {
+      let productData;
+      try {
+        // محاولة استخراج بيانات المنتج من الزر
+        productData = JSON.parse(this.getAttribute('data-product'));
+      } catch (error) {
+        // إذا فشل، نستخدم منتج افتراضي
+        productData = {
+          id: 1,
+          name: this.closest('.product-card').querySelector('h3').textContent,
+          price: parseFloat(this.closest('.product-card').querySelector('.price').textContent.replace(/[^0-9]/g, '')),
+          image: this.closest('.product-card').querySelector('img').src
+        };
+      }
+      
+      addToCart({
+        id: productData.id || Date.now(),
+        name: productData.name,
+        price: productData.price,
+        image: productData.image,
+        specs: productData.specs || { processor: "غير محدد", ram: "غير محدد" }
+      });
+    });
+  });
+}
+
 // Setup event listeners
 function setupEventListeners() {
   // Mobile menu toggle
-  if (mobileMenuToggle) {
-    mobileMenuToggle.addEventListener('click', () => {
+  if (mobileMenuButton) {
+    mobileMenuButton.addEventListener('click', () => {
       mobileMenu.classList.add('active');
     });
   }
   
   // Close mobile menu
-  if (closeMobileMenuButton) {
-    closeMobileMenuButton.addEventListener('click', () => {
+  if (closeMenuButton) {
+    closeMenuButton.addEventListener('click', () => {
       mobileMenu.classList.remove('active');
     });
   }
-  
-  // Search form
+
+    // Search form
   if (searchForm) {
     searchForm.addEventListener('submit', handleSearch);
   }
@@ -86,6 +115,10 @@ function setupEventListeners() {
   // Mobile logout button
   if (mobileLogoutButton) {
     mobileLogoutButton.addEventListener('click', logout);
+  }
+
+  if (currentYearSpan) {
+    currentYearSpan.textContent = new Date().getFullYear();
   }
 }
 
@@ -95,13 +128,6 @@ function handleSearch(e) {
   const searchInput = document.getElementById('search-input');
   if (searchInput && searchInput.value.trim()) {
     window.location.href = `products.html?search=${encodeURIComponent(searchInput.value.trim())}`;
-  }
-}
-
-// Display current year in footer
-function updateCurrentYear() {
-  if (currentYearSpan) {
-    currentYearSpan.textContent = new Date().getFullYear();
   }
 }
 
@@ -248,13 +274,13 @@ function saveCart() {
 
 // Update cart badge
 function updateCartBadge() {
-  if (cartBadge) {
-    const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-    cartBadge.textContent = totalItems;
-    
-    // Show/hide badge based on items
-    cartBadge.style.display = totalItems > 0 ? 'flex' : 'none';
-  }
+  const badges = document.querySelectorAll('.cart-count');
+  const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+  
+  badges.forEach(badge => {
+    badge.textContent = totalItems;
+    badge.style.display = totalItems > 0 ? 'flex' : 'none';
+  });
 }
 
 // Add to cart
@@ -304,7 +330,13 @@ function clearCart() {
 function showToast(type, message) {
   const toastContainer = document.getElementById('toast-container');
   
-  if (!toastContainer) return;
+  if (!toastContainer) {
+    // إنشاء حاوية toast إذا لم تكن موجودة
+    const newToastContainer = document.createElement('div');
+    newToastContainer.id = 'toast-container';
+    document.body.appendChild(newToastContainer);
+    toastContainer = newToastContainer;
+  }
   
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
@@ -841,3 +873,14 @@ function toggleProductStock(productId, inStock) {
     showToast('success', `تم تغيير حالة المنتج إلى ${inStock ? 'متوفر' : 'غير متوفر'}`);
   }
 }
+
+// إضافة وظيفة عالمية لإضافة المنتجات للسلة
+window.addToCartFromPage = function(productJson) {
+  try {
+    const product = JSON.parse(decodeURIComponent(productJson));
+    addToCart(product);
+  } catch (error) {
+    console.error('خطأ في إضافة المنتج للسلة:', error);
+    showToast('error', 'حدث خطأ أثناء إضافة المنتج للسلة');
+  }
+};

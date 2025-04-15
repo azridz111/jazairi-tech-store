@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
   <head>
@@ -88,6 +89,11 @@
             <h3>ضمان لمدة سنة</h3>
             <p>على جميع منتجاتنا</p>
           </div>
+          <div class="trust-feature">
+            <i data-lucide="credit-card"></i>
+            <h3>دفع عند الاستلام</h3>
+            <p>ادفع عندما تستلم منتجك</p>
+          </div>
         </div>
 
         <div class="checkout-container">
@@ -95,7 +101,7 @@
           <div class="checkout-items-container">
             <h2>منتجات في سلة التسوق</h2>
             <div id="checkout-items">
-              <!-- Items will be loaded dynamically -->
+              <!-- سيتم تحميل العناصر ديناميكيا -->
             </div>
             <div class="order-total">
               <span>المجموع:</span>
@@ -119,7 +125,7 @@
                 <label for="wilaya">الولاية</label>
                 <select id="wilaya" required>
                   <option value="">اختر الولاية</option>
-                  <!-- Wilayas will be loaded dynamically -->
+                  <!-- سيتم تحميل الولايات ديناميكيا -->
                 </select>
               </div>
               <div class="form-group">
@@ -191,6 +197,23 @@
     <!-- Initialize Lucide icons -->
     <script>
       lucide.createIcons();
+
+      // تفعيل القائمة المتنقلة
+      document.addEventListener('DOMContentLoaded', function() {
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const closeMenuButton = document.getElementById('close-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        if (mobileMenuButton && closeMenuButton && mobileMenu) {
+          mobileMenuButton.addEventListener('click', function() {
+            mobileMenu.classList.add('active');
+          });
+
+          closeMenuButton.addEventListener('click', function() {
+            mobileMenu.classList.remove('active');
+          });
+        }
+      });
     </script>
   </body>
 </html>

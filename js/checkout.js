@@ -3,8 +3,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const checkoutForm = document.getElementById('checkout-form');
   const checkoutItemsContainer = document.getElementById('checkout-items');
   const orderTotalElement = document.getElementById('order-total-value');
+  const wilayaSelect = document.getElementById('wilaya');
 
-  // Load cart items
+  // تحميل ولايات الجزائر
+  function loadWilayas() {
+    if (!wilayaSelect) return;
+    
+    const wilayas = [
+      "أدرار", "الشلف", "الأغواط", "أم البواقي", "باتنة", "بجاية", "بسكرة", "بشار", "البليدة", "البويرة",
+      "تمنراست", "تبسة", "تلمسان", "تيارت", "تيزي وزو", "الجزائر", "الجلفة", "جيجل", "سطيف", "سعيدة",
+      "سكيكدة", "سيدي بلعباس", "عنابة", "قالمة", "قسنطينة", "المدية", "مستغانم", "المسيلة", "معسكر", "ورقلة",
+      "وهران", "البيض", "إليزي", "برج بوعريريج", "بومرداس", "الطارف", "تندوف", "تيسمسيلت", "الوادي", "خنشلة",
+      "سوق أهراس", "تيبازة", "ميلة", "عين الدفلى", "النعامة", "عين تموشنت", "غرداية", "غليزان"
+    ];
+    
+    wilayas.forEach((wilaya, index) => {
+      const option = document.createElement('option');
+      option.value = wilaya;
+      option.textContent = `${index + 1} - ${wilaya}`;
+      wilayaSelect.appendChild(option);
+    });
+  }
+
+  // تحميل عناصر سلة التسوق
   function loadCheckoutItems() {
     const cart = JSON.parse(localStorage.getItem('tech_store_cart') || '[]');
     
@@ -14,10 +35,10 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Clear previous items
+    // مسح العناصر السابقة
     checkoutItemsContainer.innerHTML = '';
 
-    // Calculate total
+    // حساب المجموع
     let total = 0;
 
     cart.forEach(item => {
@@ -41,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
     orderTotalElement.textContent = `${total.toLocaleString()} د.ج`;
   }
 
-  // Handle form submission
+  // معالجة إرسال النموذج
   if (checkoutForm) {
     checkoutForm.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -53,19 +74,19 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Collect form data
+      // جمع بيانات النموذج
       const fullName = document.getElementById('full-name').value;
       const phone = document.getElementById('phone').value;
       const address = document.getElementById('address').value;
       const wilaya = document.getElementById('wilaya').value;
 
-      // Basic validation
+      // التحقق الأساسي
       if (!fullName || !phone || !address || !wilaya) {
         showToast('error', 'يرجى ملء جميع الحقول');
         return;
       }
 
-      // Prepare order object
+      // تحضير كائن الطلب
       const order = {
         id: Date.now(),
         items: cart,
@@ -75,25 +96,25 @@ document.addEventListener('DOMContentLoaded', () => {
         status: 'pending'
       };
 
-      // Save order to localStorage
+      // حفظ الطلب في localStorage
       const orders = JSON.parse(localStorage.getItem('tech_store_orders') || '[]');
       orders.push(order);
       localStorage.setItem('tech_store_orders', JSON.stringify(orders));
 
-      // Clear cart
+      // مسح السلة
       localStorage.removeItem('tech_store_cart');
 
-      // Show success message
+      // عرض رسالة نجاح
       showToast('success', 'تم تأكيد طلبك بنجاح');
 
-      // Redirect to order success page
+      // إعادة التوجيه إلى صفحة نجاح الطلب
       setTimeout(() => {
         window.location.href = 'order-success.html';
       }, 1500);
     });
   }
 
-  // Function to show toast notifications
+  // وظيفة لعرض إشعارات toast
   function showToast(type, message) {
     const toastContainer = document.getElementById('toast-container');
     
@@ -118,15 +139,17 @@ document.addEventListener('DOMContentLoaded', () => {
     toast.innerHTML = `${icon} ${message}`;
     toastContainer.appendChild(toast);
     
-    // Initialize icon
+    // تهيئة الأيقونة
     lucide.createIcons();
     
-    // Auto remove toast after 3 seconds
+    // إزالة toast تلقائياً بعد 3 ثوان
     setTimeout(() => {
       toast.remove();
     }, 3000);
   }
 
-  // Initial load of checkout items
+  // التحميل الأولي لعناصر الدفع
   loadCheckoutItems();
+  // تحميل الولايات
+  loadWilayas();
 });

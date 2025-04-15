@@ -6,7 +6,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 20px;
-  margin-bottom: 30px;
+  margin: 30px 0;
 }
 
 .trust-feature {
@@ -40,31 +40,31 @@
   font-size: 14px;
 }
 
-/* Fix dropdown issues */
+/* تنسيقات الصندوق المنسدل */
 select {
-  appearance: auto;
-  background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 10px;
-  width: 100%;
-  cursor: pointer;
-  font-family: 'Tajawal', sans-serif;
+  appearance: auto !important;
+  background-color: white !important;
+  border: 1px solid #ddd !important;
+  border-radius: 4px !important;
+  padding: 10px !important;
+  width: 100% !important;
+  cursor: pointer !important;
+  font-family: 'Tajawal', sans-serif !important;
 }
 
 select:focus {
-  outline: none;
-  border-color: #4CAF50;
+  outline: none !important;
+  border-color: #4CAF50 !important;
 }
 
-/* Make sure options are visible in dropdowns */
+/* تأكد من رؤية الخيارات في القوائم المنسدلة */
 option {
-  padding: 8px;
-  background-color: white;
-  color: #333;
+  padding: 8px !important;
+  background-color: white !important;
+  color: #333 !important;
 }
 
-/* Fix mobile dropdown menu */
+/* إصلاح القائمة المنسدلة للجوال */
 .mobile-menu {
   position: fixed;
   top: 0;
@@ -76,13 +76,14 @@ option {
   z-index: 999;
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
   transition: right 0.3s ease;
+  overflow-y: auto;
 }
 
 .mobile-menu.active {
   right: 0;
 }
 
-/* Improve toast notifications */
+/* تحسين إشعارات toast */
 #toast-container {
   position: fixed;
   top: 20px;
@@ -116,4 +117,121 @@ option {
 
 .toast.info {
   border-right: 4px solid #2196F3;
+}
+
+/* عناصر صفحة الدفع */
+.checkout-page {
+  padding: 40px 0;
+}
+
+.checkout-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.checkout-items-container, .checkout-form-container {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.checkout-item {
+  display: flex;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.checkout-item img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-left: 15px;
+}
+
+.item-details {
+  flex: 1;
+}
+
+.item-details span {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.item-details span:first-child {
+  font-weight: bold;
+}
+
+.item-price {
+  font-weight: bold;
+  color: #4CAF50;
+}
+
+.order-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 2px dashed #eee;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: 'Tajawal', sans-serif;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #4CAF50;
+}
+
+.button.primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-family: 'Tajawal', sans-serif;
+  font-weight: 500;
+  transition: background-color 0.3s;
+  width: 100%;
+}
+
+.button.primary:hover {
+  background-color: #388E3C;
+}
+
+.button.primary i {
+  margin-right: 8px;
+}
+
+@media (max-width: 768px) {
+  .checkout-container {
+    grid-template-columns: 1fr;
+  }
 }
