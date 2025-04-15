@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Redirect to order success page
       setTimeout(() => {
         window.location.href = 'order-success.html';
-      }, 1000);
+      }, 1500);
     });
   }
 
