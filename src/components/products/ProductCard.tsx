@@ -8,9 +8,10 @@ import { cn } from '@/lib/utils';
 
 interface ProductCardProps {
   product: Product;
+  featured?: boolean;
 }
 
-const ProductCard = ({ product }: ProductCardProps) => {
+const ProductCard = ({ product, featured = false }: ProductCardProps) => {
   const { addToCart } = useCart();
   const hasDiscount = product.oldPrice && product.oldPrice > product.price;
   const discountPercent = hasDiscount 
@@ -18,7 +19,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
     : 0;
 
   return (
-    <div className="group bg-white rounded-lg shadow-md overflow-hidden transition-all hover:shadow-lg">
+    <div className={cn(
+      "group bg-white rounded-lg shadow-md overflow-hidden transition-all hover:shadow-lg",
+      featured && "border-2 border-algerian-green"
+    )}>
       <div className="relative overflow-hidden">
         <Link to={`/product/${product.id}`}>
           <img 
@@ -32,6 +36,12 @@ const ProductCard = ({ product }: ProductCardProps) => {
           <div className="absolute top-2 right-2 bg-algerian-red text-white text-xs font-bold py-1 px-2 rounded-full flex items-center rtl">
             <TicketPercent size={14} className="ml-1" />
             <span>{discountPercent}% خصم</span>
+          </div>
+        )}
+        
+        {featured && (
+          <div className="absolute top-2 left-2 bg-algerian-green text-white text-xs font-bold py-1 px-2 rounded-full rtl">
+            منتج مميز
           </div>
         )}
         

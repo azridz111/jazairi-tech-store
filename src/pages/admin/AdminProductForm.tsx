@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { Product, products as initialProducts, saveProducts } from '@/data/products';
+import { Product, products as initialProducts } from '@/data/products';
 import AdminProductFormComponent from '@/components/admin/AdminProductForm';
 import { toast } from 'sonner';
 
@@ -49,8 +49,7 @@ const AdminProductForm = () => {
         const index = initialProducts.findIndex(p => p.id === product.id);
         
         if (index !== -1) {
-          initialProducts[index] = updatedProduct as Product;
-          saveProducts(); // حفظ في localStorage
+          initialProducts[index] = updatedProduct;
           toast.success('تم تحديث المنتج بنجاح');
         }
       } else {
@@ -62,7 +61,6 @@ const AdminProductForm = () => {
         } as Product;
         
         initialProducts.push(newProduct);
-        saveProducts(); // حفظ في localStorage
         toast.success('تم إضافة المنتج بنجاح');
       }
       

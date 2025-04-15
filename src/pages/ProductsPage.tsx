@@ -10,8 +10,8 @@ const ProductsPage = () => {
       <main className="flex-grow">
         <div className="bg-gradient-to-r from-algerian-green to-emerald-700 text-white py-12">
           <div className="container mx-auto px-4">
-            <h1 className="text-3xl font-bold mb-2 rtl">الحواسيب المحمولة</h1>
-            <p className="rtl">تصفح مجموعتنا الواسعة من الحواسيب المحمولة عالية الأداء</p>
+            <h1 className="text-3xl font-bold mb-2 rtl">منتجاتنا</h1>
+            <p className="rtl">تصفح مجموعتنا الواسعة من أجهزة الكمبيوتر والإلكترونيات</p>
           </div>
         </div>
         <ProductGrid />
