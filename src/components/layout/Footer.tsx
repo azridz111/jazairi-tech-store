@@ -6,7 +6,7 @@ const Footer = () => {
   return (
     <footer className="bg-gray-900 text-white mt-16">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 rtl">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 rtl">
           <div>
             <h3 className="text-xl font-bold mb-4">تيك ستور الجزائر</h3>
             <p className="mb-4">
@@ -46,32 +46,6 @@ const Footer = () => {
               <li>
                 <Link to="/login" className="hover:text-algerian-red transition-colors">
                   تسجيل الدخول
-                </Link>
-              </li>
-            </ul>
-          </div>
-          
-          <div>
-            <h3 className="text-xl font-bold mb-4">فئات المنتجات</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link to="/products?category=laptops" className="hover:text-algerian-red transition-colors">
-                  أجهزة الكمبيوتر المحمولة
-                </Link>
-              </li>
-              <li>
-                <Link to="/products?category=desktops" className="hover:text-algerian-red transition-colors">
-                  أجهزة الكمبيوتر المكتبية
-                </Link>
-              </li>
-              <li>
-                <Link to="/products?category=accessories" className="hover:text-algerian-red transition-colors">
-                  ملحقات الكمبيوتر
-                </Link>
-              </li>
-              <li>
-                <Link to="/products?category=components" className="hover:text-algerian-red transition-colors">
-                  مكونات الكمبيوتر
                 </Link>
               </li>
             </ul>

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Product, products as initialProducts } from '@/data/products';
+import { Product, products as initialProducts, saveProducts } from '@/data/products';
 import AdminProductList from '@/components/admin/AdminProductList';
 import { toast } from 'sonner';
 
@@ -30,19 +30,33 @@ const AdminProducts = () => {
   const handleDelete = (id: number) => {
     // التأكيد قبل الحذف
     if (window.confirm('هل أنت متأكد من رغبتك في حذف هذا المنتج؟')) {
-      setProducts(products.filter(product => product.id !== id));
+      // تحديث حالة التطبيق المحلية
+      const updatedProducts = products.filter(product => product.id !== id);
+      setProducts(updatedProducts);
       
-      // في تطبيق حقيقي، هنا ستقوم بإرسال طلب للواجهة الخلفية لحذف المنتج
-      // لكن حاليًا نحن نقوم بتحديث حالة التطبيق المحلية فقط
+      // تحديث المصفوفة العامة وحفظها في localStorage
+      const index = initialProducts.findIndex(product => product.id === id);
+      if (index !== -1) {
+        initialProducts.splice(index, 1);
+        saveProducts(); // حفظ في localStorage
+      }
       
       toast.success('تم حذف المنتج بنجاح');
     }
   };
   
   const handleToggleStock = (id: number, inStock: boolean) => {
+    // تحديث حالة التطبيق المحلية
     setProducts(products.map(product => 
       product.id === id ? { ...product, inStock } : product
     ));
+    
+    // تحديث المصفوفة العامة وحفظها في localStorage
+    const index = initialProducts.findIndex(product => product.id === id);
+    if (index !== -1) {
+      initialProducts[index].inStock = inStock;
+      saveProducts(); // حفظ في localStorage
+    }
     
     toast.success(`تم ${inStock ? 'توفير' : 'نفاذ'} المنتج بنجاح`);
   };
