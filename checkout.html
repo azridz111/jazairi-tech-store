@@ -12,18 +12,73 @@
   <body>
     <!-- Header (same as other pages) -->
     <header class="header">
-      <!-- ... (same header as index.html) ... -->
+      <div class="container">
+        <div class="header-content">
+          <a href="index.html" class="logo">
+            تيك ستور الجزائر
+          </a>
+          <div class="nav-links">
+            <a href="index.html">الرئيسية</a>
+            <a href="products.html">المنتجات</a>
+            <a href="#" id="admin-link" style="display: none;">لوحة التحكم</a>
+          </div>
+          <div class="header-actions">
+            <div id="auth-buttons"></div>
+            <a href="cart.html" class="icon-button" title="سلة التسوق">
+              <i data-lucide="shopping-cart"></i>
+              <span id="cart-badge" class="badge">0</span>
+            </a>
+            <button id="mobile-menu-toggle" class="icon-button mobile-only" title="القائمة">
+              <i data-lucide="menu"></i>
+            </button>
+          </div>
+        </div>
+      </div>
     </header>
 
     <!-- Mobile Menu (same as other pages) -->
     <div id="mobile-menu" class="mobile-menu">
-      <!-- ... (same mobile menu as index.html) ... -->
+      <div class="mobile-menu-header">
+        <span class="logo">تيك ستور الجزائر</span>
+        <button id="close-menu-button" class="icon-button">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="mobile-menu-content">
+        <div class="mobile-menu-links">
+          <a href="index.html">الرئيسية</a>
+          <a href="products.html">المنتجات</a>
+          <a href="cart.html">سلة التسوق</a>
+          <a href="admin.html" id="mobile-admin-link" style="display: none;">لوحة التحكم</a>
+          <a href="login.html" id="mobile-login-link">تسجيل الدخول</a>
+          <button id="mobile-logout-button" style="display: none;">تسجيل الخروج</button>
+        </div>
+      </div>
     </div>
 
     <!-- Main Content -->
     <main class="checkout-page">
       <div class="container">
         <h1 class="page-title">إتمام الطلب</h1>
+        
+        <!-- Trust Features -->
+        <div class="trust-features">
+          <div class="trust-feature">
+            <i data-lucide="truck"></i>
+            <h3>توصيل سريع</h3>
+            <p>توصيل لجميع ولايات الجزائر</p>
+          </div>
+          <div class="trust-feature">
+            <i data-lucide="shield-check"></i>
+            <h3>ضمان الجودة</h3>
+            <p>منتجات أصلية 100%</p>
+          </div>
+          <div class="trust-feature">
+            <i data-lucide="award"></i>
+            <h3>ضمان لمدة سنة</h3>
+            <p>على جميع منتجاتنا</p>
+          </div>
+        </div>
         
         <div class="checkout-container">
           <form id="checkout-form" class="checkout-form">
@@ -49,9 +104,54 @@
                 <label for="wilaya">الولاية</label>
                 <select id="wilaya" required>
                   <option value="">اختر الولاية</option>
-                  <option value="1">أدرار</option>
-                  <option value="2">الشلف</option>
-                  <!-- Add more wilayas -->
+                  <option value="أدرار">أدرار</option>
+                  <option value="الشلف">الشلف</option>
+                  <option value="الأغواط">الأغواط</option>
+                  <option value="أم البواقي">أم البواقي</option>
+                  <option value="باتنة">باتنة</option>
+                  <option value="بجاية">بجاية</option>
+                  <option value="بسكرة">بسكرة</option>
+                  <option value="بشار">بشار</option>
+                  <option value="البليدة">البليدة</option>
+                  <option value="البويرة">البويرة</option>
+                  <option value="تمنراست">تمنراست</option>
+                  <option value="تبسة">تبسة</option>
+                  <option value="تلمسان">تلمسان</option>
+                  <option value="تيارت">تيارت</option>
+                  <option value="تيزي وزو">تيزي وزو</option>
+                  <option value="الجزائر">الجزائر</option>
+                  <option value="الجلفة">الجلفة</option>
+                  <option value="جيجل">جيجل</option>
+                  <option value="سطيف">سطيف</option>
+                  <option value="سعيدة">سعيدة</option>
+                  <option value="سكيكدة">سكيكدة</option>
+                  <option value="سيدي بلعباس">سيدي بلعباس</option>
+                  <option value="عنابة">عنابة</option>
+                  <option value="قالمة">قالمة</option>
+                  <option value="قسنطينة">قسنطينة</option>
+                  <option value="المدية">المدية</option>
+                  <option value="مستغانم">مستغانم</option>
+                  <option value="المسيلة">المسيلة</option>
+                  <option value="معسكر">معسكر</option>
+                  <option value="ورقلة">ورقلة</option>
+                  <option value="وهران">وهران</option>
+                  <option value="البيض">البيض</option>
+                  <option value="إليزي">إليزي</option>
+                  <option value="برج بوعريريج">برج بوعريريج</option>
+                  <option value="بومرداس">بومرداس</option>
+                  <option value="الطارف">الطارف</option>
+                  <option value="تندوف">تندوف</option>
+                  <option value="تيسمسيلت">تيسمسيلت</option>
+                  <option value="الوادي">الوادي</option>
+                  <option value="خنشلة">خنشلة</option>
+                  <option value="سوق أهراس">سوق أهراس</option>
+                  <option value="تيبازة">تيبازة</option>
+                  <option value="ميلة">ميلة</option>
+                  <option value="عين الدفلى">عين الدفلى</option>
+                  <option value="النعامة">النعامة</option>
+                  <option value="عين تموشنت">عين تموشنت</option>
+                  <option value="غرداية">غرداية</option>
+                  <option value="غليزان">غليزان</option>
                 </select>
               </div>
             </div>
@@ -78,13 +178,34 @@
 
     <!-- Footer (same as other pages) -->
     <footer class="footer">
-      <!-- ... (same footer as index.html) ... -->
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h3>روابط سريعة</h3>
+            <div class="footer-links">
+              <a href="index.html">الرئيسية</a>
+              <a href="products.html">المنتجات</a>
+              <a href="cart.html">سلة التسوق</a>
+            </div>
+          </div>
+          <div class="footer-section">
+            <h3>تواصل معنا</h3>
+            <div class="contact-info">
+              <p><i data-lucide="phone"></i> 0123456789</p>
+              <p><i data-lucide="mail"></i> info@techstore-dz.com</p>
+              <p><i data-lucide="map-pin"></i> الجزائر العاصمة، الجزائر</p>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>© <span id="current-year">2023</span> تيك ستور الجزائر. جميع الحقوق محفوظة.</p>
+        </div>
+      </div>
     </footer>
 
     <!-- Toast Notifications -->
     <div id="toast-container"></div>
 
-    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script src="js/app.js"></script>
     <script src="js/checkout.js"></script>
   </body>

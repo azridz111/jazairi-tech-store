@@ -42,49 +42,90 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Handle form submission
-  checkoutForm.addEventListener('submit', (e) => {
-    e.preventDefault();
+  if (checkoutForm) {
+    checkoutForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const cart = JSON.parse(localStorage.getItem('tech_store_cart') || '[]');
+      
+      if (cart.length === 0) {
+        showToast('error', 'سلة التسوق فارغة');
+        return;
+      }
+
+      // Collect form data
+      const fullName = document.getElementById('full-name').value;
+      const phone = document.getElementById('phone').value;
+      const address = document.getElementById('address').value;
+      const wilaya = document.getElementById('wilaya').value;
+
+      // Basic validation
+      if (!fullName || !phone || !address || !wilaya) {
+        showToast('error', 'يرجى ملء جميع الحقول');
+        return;
+      }
+
+      // Prepare order object
+      const order = {
+        id: Date.now(),
+        items: cart,
+        customer: { fullName, phone, address, wilaya },
+        total: cart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0),
+        date: new Date().toISOString(),
+        status: 'pending'
+      };
+
+      // Save order to localStorage
+      const orders = JSON.parse(localStorage.getItem('tech_store_orders') || '[]');
+      orders.push(order);
+      localStorage.setItem('tech_store_orders', JSON.stringify(orders));
+
+      // Clear cart
+      localStorage.removeItem('tech_store_cart');
+
+      // Show success message
+      showToast('success', 'تم تأكيد طلبك بنجاح');
+
+      // Redirect to order success page
+      setTimeout(() => {
+        window.location.href = 'order-success.html';
+      }, 1000);
+    });
+  }
+
+  // Function to show toast notifications
+  function showToast(type, message) {
+    const toastContainer = document.getElementById('toast-container');
     
-    const cart = JSON.parse(localStorage.getItem('tech_store_cart') || '[]');
+    if (!toastContainer) return;
     
-    if (cart.length === 0) {
-      alert('سلة التسوق فارغة');
-      return;
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    let icon = '';
+    switch (type) {
+      case 'success':
+        icon = '<i data-lucide="check-circle"></i>';
+        break;
+      case 'error':
+        icon = '<i data-lucide="x-circle"></i>';
+        break;
+      case 'info':
+        icon = '<i data-lucide="info"></i>';
+        break;
     }
-
-    // Collect form data
-    const fullName = document.getElementById('full-name').value;
-    const phone = document.getElementById('phone').value;
-    const address = document.getElementById('address').value;
-    const wilaya = document.getElementById('wilaya').value;
-
-    // Basic validation
-    if (!fullName || !phone || !address || !wilaya) {
-      alert('يرجى ملء جميع الحقول');
-      return;
-    }
-
-    // Prepare order object
-    const order = {
-      id: Date.now(),
-      items: cart,
-      customer: { fullName, phone, address, wilaya },
-      total: cart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0),
-      date: new Date().toISOString(),
-      status: 'pending'
-    };
-
-    // Save order to localStorage
-    const orders = JSON.parse(localStorage.getItem('tech_store_orders') || '[]');
-    orders.push(order);
-    localStorage.setItem('tech_store_orders', JSON.stringify(orders));
-
-    // Clear cart
-    localStorage.removeItem('tech_store_cart');
-
-    // Redirect to order success page
-    window.location.href = 'order-success.html';
-  });
+    
+    toast.innerHTML = `${icon} ${message}`;
+    toastContainer.appendChild(toast);
+    
+    // Initialize icon
+    lucide.createIcons();
+    
+    // Auto remove toast after 3 seconds
+    setTimeout(() => {
+      toast.remove();
+    }, 3000);
+  }
 
   // Initial load of checkout items
   loadCheckoutItems();
