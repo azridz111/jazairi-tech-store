@@ -3,29 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const checkoutForm = document.getElementById('checkout-form');
   const checkoutItemsContainer = document.getElementById('checkout-items');
   const orderTotalElement = document.getElementById('order-total-value');
-  const wilayaSelect = document.getElementById('wilaya');
 
-  // تحميل ولايات الجزائر
-  function loadWilayas() {
-    if (!wilayaSelect) return;
-    
-    const wilayas = [
-      "أدرار", "الشلف", "الأغواط", "أم البواقي", "باتنة", "بجاية", "بسكرة", "بشار", "البليدة", "البويرة",
-      "تمنراست", "تبسة", "تلمسان", "تيارت", "تيزي وزو", "الجزائر", "الجلفة", "جيجل", "سطيف", "سعيدة",
-      "سكيكدة", "سيدي بلعباس", "عنابة", "قالمة", "قسنطينة", "المدية", "مستغانم", "المسيلة", "معسكر", "ورقلة",
-      "وهران", "البيض", "إليزي", "برج بوعريريج", "بومرداس", "الطارف", "تندوف", "تيسمسيلت", "الوادي", "خنشلة",
-      "سوق أهراس", "تيبازة", "ميلة", "عين الدفلى", "النعامة", "عين تموشنت", "غرداية", "غليزان"
-    ];
-    
-    wilayas.forEach((wilaya, index) => {
-      const option = document.createElement('option');
-      option.value = wilaya;
-      option.textContent = `${index + 1} - ${wilaya}`;
-      wilayaSelect.appendChild(option);
-    });
-  }
-
-  // تحميل عناصر سلة التسوق
+  // Load cart items
   function loadCheckoutItems() {
     const cart = JSON.parse(localStorage.getItem('tech_store_cart') || '[]');
     
@@ -35,10 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // مسح العناصر السابقة
+    // Clear previous items
     checkoutItemsContainer.innerHTML = '';
 
-    // حساب المجموع
+    // Calculate total
     let total = 0;
 
     cart.forEach(item => {
@@ -62,94 +41,51 @@ document.addEventListener('DOMContentLoaded', () => {
     orderTotalElement.textContent = `${total.toLocaleString()} د.ج`;
   }
 
-  // معالجة إرسال النموذج
-  if (checkoutForm) {
-    checkoutForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      
-      const cart = JSON.parse(localStorage.getItem('tech_store_cart') || '[]');
-      
-      if (cart.length === 0) {
-        showToast('error', 'سلة التسوق فارغة');
-        return;
-      }
-
-      // جمع بيانات النموذج
-      const fullName = document.getElementById('full-name').value;
-      const phone = document.getElementById('phone').value;
-      const address = document.getElementById('address').value;
-      const wilaya = document.getElementById('wilaya').value;
-
-      // التحقق الأساسي
-      if (!fullName || !phone || !address || !wilaya) {
-        showToast('error', 'يرجى ملء جميع الحقول');
-        return;
-      }
-
-      // تحضير كائن الطلب
-      const order = {
-        id: Date.now(),
-        items: cart,
-        customer: { fullName, phone, address, wilaya },
-        total: cart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0),
-        date: new Date().toISOString(),
-        status: 'pending'
-      };
-
-      // حفظ الطلب في localStorage
-      const orders = JSON.parse(localStorage.getItem('tech_store_orders') || '[]');
-      orders.push(order);
-      localStorage.setItem('tech_store_orders', JSON.stringify(orders));
-
-      // مسح السلة
-      localStorage.removeItem('tech_store_cart');
-
-      // عرض رسالة نجاح
-      showToast('success', 'تم تأكيد طلبك بنجاح');
-
-      // إعادة التوجيه إلى صفحة نجاح الطلب
-      setTimeout(() => {
-        window.location.href = 'order-success.html';
-      }, 1500);
-    });
-  }
-
-  // وظيفة لعرض إشعارات toast
-  function showToast(type, message) {
-    const toastContainer = document.getElementById('toast-container');
+  // Handle form submission
+  checkoutForm.addEventListener('submit', (e) => {
+    e.preventDefault();
     
-    if (!toastContainer) return;
+    const cart = JSON.parse(localStorage.getItem('tech_store_cart') || '[]');
     
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    
-    let icon = '';
-    switch (type) {
-      case 'success':
-        icon = '<i data-lucide="check-circle"></i>';
-        break;
-      case 'error':
-        icon = '<i data-lucide="x-circle"></i>';
-        break;
-      case 'info':
-        icon = '<i data-lucide="info"></i>';
-        break;
+    if (cart.length === 0) {
+      alert('سلة التسوق فارغة');
+      return;
     }
-    
-    toast.innerHTML = `${icon} ${message}`;
-    toastContainer.appendChild(toast);
-    
-    // تهيئة الأيقونة
-    lucide.createIcons();
-    
-    // إزالة toast تلقائياً بعد 3 ثوان
-    setTimeout(() => {
-      toast.remove();
-    }, 3000);
-  }
 
-  // التحميل الأولي لعناصر الدفع
+    // Collect form data
+    const fullName = document.getElementById('full-name').value;
+    const phone = document.getElementById('phone').value;
+    const address = document.getElementById('address').value;
+    const wilaya = document.getElementById('wilaya').value;
+
+    // Basic validation
+    if (!fullName || !phone || !address || !wilaya) {
+      alert('يرجى ملء جميع الحقول');
+      return;
+    }
+
+    // Prepare order object
+    const order = {
+      id: Date.now(),
+      items: cart,
+      customer: { fullName, phone, address, wilaya },
+      total: cart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0),
+      date: new Date().toISOString(),
+      status: 'pending'
+    };
+
+    // Save order to localStorage
+    const orders = JSON.parse(localStorage.getItem('tech_store_orders') || '[]');
+    orders.push(order);
+    localStorage.setItem('tech_store_orders', JSON.stringify(orders));
+
+    // Clear cart
+    localStorage.removeItem('tech_store_cart');
+
+    // Redirect to order success page
+    window.location.href = 'order-success.html';
+  });
+
+  // Initial load of checkout items
   loadCheckoutItems();
-  // تحميل الولايات
-  loadWilayas();
 });

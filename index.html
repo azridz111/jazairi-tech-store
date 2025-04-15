@@ -1,188 +1,112 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>تيك ستور الجزائر - متجر الإلكترونيات</title>
+    <title>تيك ستور الجزائر - متجر أجهزة الكمبيوتر</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <script src="https://unpkg.com/lucide@latest"></script>
   </head>
   <body>
-    <!-- Header -->
+    <!-- Header Section -->
     <header class="header">
       <div class="container">
-        <a href="index.html" class="logo">
-          <img src="logo.png" alt="تيك ستور">
-        </a>
-        <nav class="desktop-menu">
-          <ul>
-            <li><a href="index.html">الرئيسية</a></li>
-            <li><a href="products.html">المنتجات</a></li>
-            <li><a href="categories.html">الأقسام</a></li>
-            <li><a href="about.html">من نحن</a></li>
-            <li><a href="contact.html">تواصل معنا</a></li>
-          </ul>
-        </nav>
-        <div class="header-actions">
-          <div class="search-box">
-            <input type="search" placeholder="ابحث عن منتج...">
-            <button><i data-lucide="search"></i></button>
+        <div class="header-content">
+          <div class="header-left">
+            <button id="mobile-menu-toggle" class="menu-toggle">
+              <i data-lucide="menu"></i>
+            </button>
+            <a href="index.html" class="logo">
+              <i data-lucide="store" class="logo-icon"></i>
+              <span>تيك ستور الجزائر</span>
+            </a>
           </div>
-          <a href="#" class="wishlist"><i data-lucide="heart"></i></a>
-          <a href="cart.html" class="cart">
-            <i data-lucide="shopping-cart"></i>
-            <span class="cart-count">3</span>
-          </a>
-          <button class="mobile-menu-toggle">
-            <i data-lucide="menu"></i>
-          </button>
+
+          <nav class="main-nav">
+            <a href="index.html" class="nav-link">الرئيسية</a>
+            <a href="products.html" class="nav-link">المنتجات</a>
+            <a href="cart.html" class="nav-link">سلة التسوق</a>
+            <a href="checkout.html" class="nav-link">الدفع</a>
+            <a href="admin.html" id="admin-link" class="nav-link" style="display: none;">لوحة التحكم</a>
+          </nav>
+
+          <div class="header-right">
+            <form id="search-form" class="search-form">
+              <input type="search" id="search-input" placeholder="ابحث عن منتج...">
+              <button type="submit" class="search-button">
+                <i data-lucide="search"></i>
+              </button>
+            </form>
+            
+            <a href="cart.html" class="icon-button cart-button">
+              <i data-lucide="shopping-cart"></i>
+              <span id="cart-badge" class="cart-badge">0</span>
+            </a>
+            
+            <div id="auth-buttons">
+              <a href="login.html" class="icon-button" title="تسجيل الدخول">
+                <i data-lucide="log-in"></i>
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </header>
 
     <!-- Mobile Menu -->
     <div id="mobile-menu" class="mobile-menu">
-      <button class="mobile-menu-close">
-        <i data-lucide="x"></i>
-      </button>
-      <ul>
-        <li><a href="index.html">الرئيسية</a></li>
-        <li><a href="products.html">المنتجات</a></li>
-        <li><a href="categories.html">الأقسام</a></li>
-        <li><a href="about.html">من نحن</a></li>
-        <li><a href="contact.html">تواصل معنا</a></li>
-        <li>
-          <div class="search-box">
-            <input type="search" placeholder="ابحث عن منتج...">
-            <button><i data-lucide="search"></i></button>
-          </div>
-        </li>
-      </ul>
+      <div class="mobile-menu-header">
+        <h2>القائمة</h2>
+        <button id="close-menu-button">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <nav class="mobile-nav">
+        <a href="index.html">الرئيسية</a>
+        <a href="products.html">المنتجات</a>
+        <a href="cart.html">سلة التسوق</a>
+        <a href="checkout.html">الدفع</a>
+        <a href="admin.html" id="mobile-admin-link" style="display: none;">لوحة التحكم</a>
+        <a href="login.html" id="mobile-login-link">تسجيل الدخول</a>
+        <button id="mobile-logout-button" style="display: none;">تسجيل الخروج</button>
+      </nav>
     </div>
 
     <!-- Main Content -->
     <main>
       <!-- Hero Section -->
       <section class="hero">
+        <div class="overlay"></div>
         <div class="container">
           <div class="hero-content">
-            <h1>أحدث الإلكترونيات بأفضل الأسعار في الجزائر</h1>
-            <p>اكتشف مجموعتنا الواسعة من الهواتف الذكية، أجهزة الكمبيوتر، الأجهزة المنزلية، والمزيد.</p>
-            <a href="products.html" class="button primary">تسوق الآن <i data-lucide="arrow-right"></i></a>
-          </div>
-          <div class="hero-image">
-            <img src="hero-image.png" alt="Hero Image">
+            <h1>أفضل أجهزة الكمبيوتر والإلكترونيات في الجزائر</h1>
+            <p>اكتشف تشكيلتنا الواسعة من أحدث أجهزة الكمبيوتر المحمولة والمكتبية بأسعار تنافسية وجودة عالية.</p>
+            <div class="hero-buttons">
+              <a href="products.html" class="button primary">
+                تسوق الآن
+                <i data-lucide="arrow-left"></i>
+              </a>
+            </div>
           </div>
         </div>
       </section>
 
       <!-- Featured Products -->
-      <section class="featured-products">
+      <section class="products-section">
         <div class="container">
-          <h2 class="section-title">المنتجات المميزة</h2>
-          <div class="products-grid">
-            <div class="product-card">
-              <a href="product-details.html">
-                <img src="product1.png" alt="Product 1">
-                <h3>هاتف سامسونج جالاكسي S21</h3>
-                <p class="price">120,000 د.ج</p>
-              </a>
-              <button class="add-to-cart">أضف إلى السلة <i data-lucide="shopping-cart"></i></button>
-            </div>
-            <div class="product-card">
-              <a href="product-details.html">
-                <img src="product2.png" alt="Product 2">
-                <h3>لابتوب ديل XPS 13</h3>
-                <p class="price">180,000 د.ج</p>
-              </a>
-              <button class="add-to-cart">أضف إلى السلة <i data-lucide="shopping-cart"></i></button>
-            </div>
-            <div class="product-card">
-              <a href="product-details.html">
-                <img src="product3.png" alt="Product 3">
-                <h3>سماعات لاسلكية سوني WH-1000XM4</h3>
-                <p class="price">45,000 د.ج</p>
-              </a>
-              <button class="add-to-cart">أضف إلى السلة <i data-lucide="shopping-cart"></i></button>
-            </div>
-            <div class="product-card">
-              <a href="product-details.html">
-                <img src="product4.png" alt="Product 4">
-                <h3>تلفزيون ذكي LG OLED 55 بوصة</h3>
-                <p class="price">250,000 د.ج</p>
-              </a>
-              <button class="add-to-cart">أضف إلى السلة <i data-lucide="shopping-cart"></i></button>
-            </div>
-          </div>
-          <a href="products.html" class="button secondary">عرض المزيد <i data-lucide="arrow-right"></i></a>
-        </div>
-      </section>
-
-      <!-- Trust Features Section -->
-      <section class="trust-features-section">
-        <div class="container">
-          <h2 class="section-title">لماذا تختار تيك ستور؟</h2>
-          <div class="trust-features">
-            <div class="trust-feature">
-              <i data-lucide="truck"></i>
-              <h3>توصيل سريع</h3>
-              <p>توصيل لجميع ولايات الجزائر</p>
-            </div>
-            <div class="trust-feature">
-              <i data-lucide="shield-check"></i>
-              <h3>ضمان الجودة</h3>
-              <p>منتجات أصلية 100%</p>
-            </div>
-            <div class="trust-feature">
-              <i data-lucide="award"></i>
-              <h3>ضمان لمدة سنة</h3>
-              <p>على جميع منتجاتنا</p>
-            </div>
-            <div class="trust-feature">
-              <i data-lucide="credit-card"></i>
-              <h3>دفع عند الاستلام</h3>
-              <p>ادفع عندما تستلم منتجك</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Categories -->
-      <section class="categories">
-        <div class="container">
-          <h2 class="section-title">تسوق حسب القسم</h2>
-          <div class="categories-grid">
-            <a href="products.html" class="category-card">
-              <img src="category1.png" alt="هواتف ذكية">
-              <h3>هواتف ذكية</h3>
-            </a>
-            <a href="products.html" class="category-card">
-              <img src="category2.png" alt="أجهزة الكمبيوتر">
-              <h3>أجهزة الكمبيوتر</h3>
-            </a>
-            <a href="products.html" class="category-card">
-              <img src="category3.png" alt="أجهزة منزلية">
-              <h3>أجهزة منزلية</h3>
-            </a>
-            <a href="products.html" class="category-card">
-              <img src="category4.png" alt="سماعات">
-              <h3>سماعات</h3>
+          <div class="section-header">
+            <h2>الحواسيب المحمولة</h2>
+            <a href="products.html" class="view-all-link">
+              عرض الكل
+              <i data-lucide="chevron-left"></i>
             </a>
           </div>
-        </div>
-      </section>
-
-      <!-- About Us -->
-      <section class="about-us">
-        <div class="container">
-          <div class="about-us-content">
-            <h2 class="section-title">من نحن</h2>
-            <p>تيك ستور هو متجرك الموثوق للإلكترونيات في الجزائر. نحن نقدم مجموعة واسعة من المنتجات عالية الجودة بأسعار تنافسية. مهمتنا هي توفير تجربة تسوق مريحة وممتعة لعملائنا.</p>
-            <a href="about.html" class="button secondary">اقرأ المزيد <i data-lucide="arrow-right"></i></a>
-          </div>
-          <div class="about-us-image">
-            <img src="about-us.png" alt="About Us">
+          
+          <div id="featured-products" class="products-grid">
+            <!-- Products will be loaded dynamically -->
+            <p class="loading-text">جاري تحميل المنتجات...</p>
           </div>
         </div>
       </section>
@@ -191,64 +115,62 @@
     <!-- Footer -->
     <footer class="footer">
       <div class="container">
-        <div class="footer-links">
+        <div class="footer-grid">
           <div class="footer-column">
-            <h4>معلومات</h4>
-            <ul>
-              <li><a href="about.html">من نحن</a></li>
-              <li><a href="contact.html">تواصل معنا</a></li>
-              <li><a href="#">سياسة الخصوصية</a></li>
-              <li><a href="#">شروط الاستخدام</a></li>
-            </ul>
-          </div>
-          <div class="footer-column">
-            <h4>خدمة العملاء</h4>
-            <ul>
-              <li><a href="#">تتبع طلبك</a></li>
-              <li><a href="#">الأسئلة الشائعة</a></li>
-              <li><a href="#">الإرجاع والاستبدال</a></li>
-              <li><a href="#">الدعم الفني</a></li>
-            </ul>
-          </div>
-          <div class="footer-column">
-            <h4>الأقسام</h4>
-            <ul>
-              <li><a href="products.html">هواتف ذكية</a></li>
-              <li><a href="products.html">أجهزة الكمبيوتر</a></li>
-              <li><a href="products.html">أجهزة منزلية</a></li>
-              <li><a href="products.html">سماعات</a></li>
-            </ul>
-          </div>
-          <div class="footer-column">
-            <h4>النشرة الإخبارية</h4>
-            <p>اشترك في نشرتنا الإخبارية للحصول على أحدث العروض والخصومات.</p>
-            <div class="newsletter-form">
-              <input type="email" placeholder="أدخل بريدك الإلكتروني">
-              <button>اشتراك</button>
+            <h3>تيك ستور الجزائر</h3>
+            <p>متجرك المفضل للكمبيوتر والإلكترونيات في الجزائر، نوفر أحدث المنتجات بأفضل الأسعار.</p>
+            <div class="social-links">
+              <a href="#" aria-label="Facebook">
+                <i data-lucide="facebook"></i>
+              </a>
+              <a href="#" aria-label="Instagram">
+                <i data-lucide="instagram"></i>
+              </a>
+              <a href="#" aria-label="Twitter">
+                <i data-lucide="twitter"></i>
+              </a>
             </div>
           </div>
-        </div>
-        <div class="footer-bottom">
-          <p>جميع الحقوق محفوظة © 2023 تيك ستور الجزائر</p>
-          <div class="social-icons">
-            <a href="#"><i data-lucide="facebook"></i></a>
-            <a href="#"><i data-lucide="twitter"></i></a>
-            <a href="#"><i data-lucide="instagram"></i></a>
+          
+          <div class="footer-column">
+            <h3>روابط سريعة</h3>
+            <ul>
+              <li><a href="index.html">الرئيسية</a></li>
+              <li><a href="products.html">المنتجات</a></li>
+              <li><a href="cart.html">سلة التسوق</a></li>
+              <li><a href="login.html">تسجيل الدخول</a></li>
+            </ul>
           </div>
+          
+          <div class="footer-column">
+            <h3>اتصل بنا</h3>
+            <ul class="contact-list">
+              <li>
+                <i data-lucide="map-pin"></i>
+                <span>شارع ديدوش مراد، الجزائر العاصمة</span>
+              </li>
+              <li>
+                <i data-lucide="phone"></i>
+                <span>+213 XX XX XX XX</span>
+              </li>
+              <li>
+                <i data-lucide="mail"></i>
+                <span>info@techstore-dz.com</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="footer-bottom">
+          <p>&copy; <span id="current-year"></span> تيك ستور الجزائر. جميع الحقوق محفوظة.</p>
         </div>
       </div>
     </footer>
 
-    <!-- Toast Container -->
+    <!-- Toast Notifications -->
     <div id="toast-container"></div>
 
-    <!-- Adding the required Lovable script tag -->
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script src="js/app.js"></script>
-
-    <!-- Initialize Lucide icons -->
-    <script>
-      lucide.createIcons();
-    </script>
   </body>
 </html>
