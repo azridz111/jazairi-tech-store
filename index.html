@@ -5,23 +5,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>تيك ستور الجزائر - متجر أجهزة الكمبيوتر</title>
-    <meta name="description" content="متجر تيك ستور الجزائر - أفضل أجهزة الكمبيوتر والإلكترونيات في الجزائر بأسعار تنافسية" />
-    <meta name="author" content="تيك ستور الجزائر" />
-
-    <meta property="og:title" content="تيك ستور الجزائر - متجر أجهزة الكمبيوتر" />
-    <meta property="og:description" content="متجر تيك ستور الجزائر - أفضل أجهزة الكمبيوتر والإلكترونيات في الجزائر بأسعار تنافسية" />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@lovable_dev" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-    
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <script src="https://unpkg.com/lucide@latest"></script>
   </head>
-
   <body>
     <!-- Header Section -->
     <header class="header">
@@ -40,6 +27,8 @@
           <nav class="main-nav">
             <a href="index.html" class="nav-link">الرئيسية</a>
             <a href="products.html" class="nav-link">المنتجات</a>
+            <a href="cart.html" class="nav-link">سلة التسوق</a>
+            <a href="checkout.html" class="nav-link">الدفع</a>
             <a href="admin.html" id="admin-link" class="nav-link" style="display: none;">لوحة التحكم</a>
           </nav>
 
@@ -77,6 +66,8 @@
       <nav class="mobile-nav">
         <a href="index.html">الرئيسية</a>
         <a href="products.html">المنتجات</a>
+        <a href="cart.html">سلة التسوق</a>
+        <a href="checkout.html">الدفع</a>
         <a href="admin.html" id="mobile-admin-link" style="display: none;">لوحة التحكم</a>
         <a href="login.html" id="mobile-login-link">تسجيل الدخول</a>
         <button id="mobile-logout-button" style="display: none;">تسجيل الخروج</button>
@@ -91,13 +82,12 @@
         <div class="container">
           <div class="hero-content">
             <h1>أفضل أجهزة الكمبيوتر والإلكترونيات في الجزائر</h1>
-            <p>اكتشف تشكيلتنا الواسعة من أحدث أجهزة الكمبيوتر المحمولة والمكتبية وملحقاتها بأسعار تنافسية وجودة عالية.</p>
+            <p>اكتشف تشكيلتنا الواسعة من أحدث أجهزة الكمبيوتر المحمولة والمكتبية بأسعار تنافسية وجودة عالية.</p>
             <div class="hero-buttons">
               <a href="products.html" class="button primary">
                 تسوق الآن
                 <i data-lucide="arrow-left"></i>
               </a>
-              <a href="products.html" class="button secondary">أجهزة محمولة</a>
             </div>
           </div>
         </div>
@@ -117,52 +107,6 @@
           <div id="featured-products" class="products-grid">
             <!-- Products will be loaded dynamically -->
             <p class="loading-text">جاري تحميل المنتجات...</p>
-          </div>
-          
-          <div class="mobile-view-all">
-            <a href="products.html" class="button outline">
-              عرض جميع الحواسيب المحمولة
-              <i data-lucide="chevron-left"></i>
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <!-- Features Section -->
-      <section class="features-section">
-        <div class="container">
-          <div class="features-grid">
-            <div class="feature-card">
-              <div class="feature-icon">
-                <i data-lucide="truck"></i>
-              </div>
-              <h3>توصيل سريع</h3>
-              <p>نوصل لجميع ولايات الجزائر</p>
-            </div>
-            
-            <div class="feature-card">
-              <div class="feature-icon">
-                <i data-lucide="shield-check"></i>
-              </div>
-              <h3>ضمان جودة</h3>
-              <p>جميع منتجاتنا أصلية ومضمونة</p>
-            </div>
-            
-            <div class="feature-card">
-              <div class="feature-icon">
-                <i data-lucide="refresh-cw"></i>
-              </div>
-              <h3>استبدال سهل</h3>
-              <p>استبدال المنتج خلال 14 يوم</p>
-            </div>
-            
-            <div class="feature-card">
-              <div class="feature-icon">
-                <i data-lucide="phone-call"></i>
-              </div>
-              <h3>دعم فني</h3>
-              <p>فريق دعم متخصص لمساعدتك</p>
-            </div>
           </div>
         </div>
       </section>
