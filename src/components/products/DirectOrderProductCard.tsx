@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingBag, TicketPercent, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,9 +15,18 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Product } from '@/data/products';
 import { toast } from 'sonner';
 import { createOrder } from '@/services/orders';
+import { wilayas } from '@/data/wilayas';
+import { getMunicipalitiesByWilayaId, getWilayaIdByName } from '@/data/municipalities';
 
 interface DirectOrderProductCardProps {
   product: Product;
@@ -27,27 +36,55 @@ const DirectOrderProductCard = ({ product }: DirectOrderProductCardProps) => {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
+    wilaya: '',
+    municipality: '',
     address: '',
     notes: ''
   });
+  
+  const [availableMunicipalities, setAvailableMunicipalities] = useState<{id: number, name: string}[]>([]);
   
   const hasDiscount = product.oldPrice && product.oldPrice > product.price;
   const discountPercent = hasDiscount 
     ? Math.round(((product.oldPrice! - product.price) / product.oldPrice!) * 100) 
     : 0;
   
+  // Update municipalities when wilaya changes
+  useEffect(() => {
+    if (formData.wilaya) {
+      const wilayaId = getWilayaIdByName(formData.wilaya);
+      if (wilayaId) {
+        const municipalities = getMunicipalitiesByWilayaId(wilayaId);
+        setAvailableMunicipalities(municipalities);
+        // Reset municipality when wilaya changes
+        setFormData(prev => ({ ...prev, municipality: '' }));
+      }
+    } else {
+      setAvailableMunicipalities([]);
+    }
+  }, [formData.wilaya]);
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+  
+  const handleSelectChange = (name: string, value: string) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.phone) {
-      toast.error('يرجى إدخال الاسم ورقم الهاتف');
+    if (!formData.name || !formData.phone || !formData.wilaya || !formData.municipality) {
+      toast.error('يرجى إدخال الاسم، رقم الهاتف، الولاية والبلدية');
       return;
     }
+    
+    // Create full address
+    const fullAddress = formData.address 
+      ? `${formData.address}، ${formData.municipality}، ${formData.wilaya}`
+      : `${formData.municipality}، ${formData.wilaya}`;
     
     // Create order
     createOrder({
@@ -55,7 +92,7 @@ const DirectOrderProductCard = ({ product }: DirectOrderProductCardProps) => {
       productName: product.name,
       customerName: formData.name,
       customerPhone: formData.phone,
-      customerAddress: formData.address,
+      customerAddress: fullAddress,
       notes: formData.notes,
       totalPrice: product.price,
       date: new Date().toISOString()
@@ -67,6 +104,8 @@ const DirectOrderProductCard = ({ product }: DirectOrderProductCardProps) => {
     setFormData({
       name: '',
       phone: '',
+      wilaya: '',
+      municipality: '',
       address: '',
       notes: ''
     });
@@ -136,7 +175,7 @@ const DirectOrderProductCard = ({ product }: DirectOrderProductCardProps) => {
             <DialogHeader>
               <DialogTitle>طلب {product.name}</DialogTitle>
             </DialogHeader>
-            <form className="space-y-4 py-4">
+            <form className="space-y-4 py-4" id="productOrderForm">
               <div className="space-y-2">
                 <Label htmlFor="name">الاسم الكامل</Label>
                 <Input 
@@ -160,11 +199,50 @@ const DirectOrderProductCard = ({ product }: DirectOrderProductCardProps) => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="address">العنوان</Label>
+                <Label htmlFor="wilaya">الولاية</Label>
+                <Select 
+                  value={formData.wilaya}
+                  onValueChange={(value) => handleSelectChange('wilaya', value)}
+                  required
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر الولاية" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {wilayas.map(wilaya => (
+                      <SelectItem key={wilaya.id} value={wilaya.name}>
+                        {wilaya.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="municipality">البلدية</Label>
+                <Select 
+                  value={formData.municipality}
+                  onValueChange={(value) => handleSelectChange('municipality', value)}
+                  disabled={!formData.wilaya}
+                  required
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر البلدية" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableMunicipalities.map(municipality => (
+                      <SelectItem key={municipality.id} value={municipality.name}>
+                        {municipality.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="address">العنوان (اختياري)</Label>
                 <Input 
                   id="address" 
                   name="address" 
-                  placeholder="أدخل عنوانك" 
+                  placeholder="أدخل عنوانك بالتفصيل" 
                   value={formData.address} 
                   onChange={handleChange} 
                 />
@@ -185,7 +263,7 @@ const DirectOrderProductCard = ({ product }: DirectOrderProductCardProps) => {
             </form>
             <DialogFooter>
               <DialogClose asChild>
-                <Button type="submit" onClick={handleSubmit}>
+                <Button type="button" onClick={handleSubmit}>
                   <Send className="ml-2 h-4 w-4" />
                   إرسال الطلب
                 </Button>

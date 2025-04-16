@@ -1,8 +1,8 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCart } from '@/context/CartContext';
 import { wilayas } from '@/data/wilayas';
+import { getMunicipalitiesByWilayaId, getWilayaIdByName } from '@/data/municipalities';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,18 +23,19 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { createOrder } from '@/services/orders';
 
 interface FormData {
   firstName: string;
   lastName: string;
   phoneNumber: string;
   wilaya: string;
+  municipality: string;
   address: string;
   notes: string;
 }
 
 const CheckoutForm = () => {
-  const { items, totalPrice, clearCart } = useCart();
   const navigate = useNavigate();
   
   const [formData, setFormData] = useState<FormData>({
@@ -42,11 +43,28 @@ const CheckoutForm = () => {
     lastName: '',
     phoneNumber: '',
     wilaya: '',
+    municipality: '',
     address: '',
     notes: ''
   });
   
   const [loading, setLoading] = useState(false);
+  const [availableMunicipalities, setAvailableMunicipalities] = useState<{id: number, name: string}[]>([]);
+  
+  // Update municipalities when wilaya changes
+  useEffect(() => {
+    if (formData.wilaya) {
+      const wilayaId = getWilayaIdByName(formData.wilaya);
+      if (wilayaId) {
+        const municipalities = getMunicipalitiesByWilayaId(wilayaId);
+        setAvailableMunicipalities(municipalities);
+        // Reset municipality when wilaya changes
+        setFormData(prev => ({ ...prev, municipality: '' }));
+      }
+    } else {
+      setAvailableMunicipalities([]);
+    }
+  }, [formData.wilaya]);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -61,13 +79,8 @@ const CheckoutForm = () => {
     e.preventDefault();
     
     // Validate form
-    if (!formData.firstName || !formData.lastName || !formData.phoneNumber || !formData.wilaya || !formData.address) {
+    if (!formData.firstName || !formData.lastName || !formData.phoneNumber || !formData.wilaya || !formData.municipality || !formData.address) {
       toast.error('الرجاء إكمال جميع الحقول المطلوبة');
-      return;
-    }
-    
-    if (items.length === 0) {
-      toast.error('سلة التسوق فارغة');
       return;
     }
     
@@ -77,20 +90,24 @@ const CheckoutForm = () => {
     try {
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // In a real app, you would send the order data to your backend
-      console.log('Order submitted:', {
-        customerInfo: formData,
-        items: items.map(item => ({
-          productId: item.product.id,
-          name: item.product.name,
-          price: item.product.price,
-          quantity: item.quantity
-        })),
-        totalAmount: totalPrice
-      });
+      // Create the order with full address including municipality
+      const fullAddress = `${formData.address}، ${formData.municipality}، ${formData.wilaya}`;
       
-      // Clear cart and redirect to success page
-      clearCart();
+      // Create an order object
+      const orderData = {
+        productId: 0, // Will be set when ordering from product page
+        productName: "طلب مباشر", // Will be updated when ordering from product page
+        customerName: `${formData.firstName} ${formData.lastName}`,
+        customerPhone: formData.phoneNumber,
+        customerAddress: fullAddress,
+        notes: formData.notes,
+        totalPrice: 0, // Will be set when ordering from product page
+        date: new Date().toISOString()
+      };
+      
+      // Create the order
+      createOrder(orderData);
+      
       toast.success('تم إرسال طلبك بنجاح');
       navigate('/order-success');
     } catch (error) {
@@ -168,6 +185,27 @@ const CheckoutForm = () => {
               </div>
               
               <div className="space-y-2">
+                <Label htmlFor="municipality">البلدية <span className="text-red-500">*</span></Label>
+                <Select 
+                  value={formData.municipality}
+                  onValueChange={(value) => handleSelectChange('municipality', value)}
+                  disabled={!formData.wilaya}
+                  required
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر البلدية" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableMunicipalities.map(municipality => (
+                      <SelectItem key={municipality.id} value={municipality.name}>
+                        {municipality.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
                 <Label htmlFor="address">العنوان <span className="text-red-500">*</span></Label>
                 <Input
                   id="address"
@@ -190,46 +228,37 @@ const CheckoutForm = () => {
                 />
               </div>
             </CardContent>
+            <CardFooter>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={loading}
+              >
+                {loading ? 'جاري إرسال الطلب...' : 'إرسال الطلب'}
+              </Button>
+            </CardFooter>
           </Card>
         </div>
         
         <div>
           <Card>
             <CardHeader>
-              <CardTitle>ملخص الطلب</CardTitle>
-              <CardDescription>مراجعة المنتجات والسعر الإجمالي</CardDescription>
+              <CardTitle>معلومات الطلب</CardTitle>
+              <CardDescription>تفاصيل الطلب</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {items.length > 0 ? (
-                <div className="space-y-4">
-                  {items.map(item => (
-                    <div key={item.product.id} className="flex justify-between pb-2 border-b">
-                      <div>
-                        <p className="font-medium">{item.product.name}</p>
-                        <p className="text-sm text-gray-600">{item.quantity} × {item.product.price.toLocaleString()} د.ج</p>
-                      </div>
-                      <p className="font-medium">{(item.product.price * item.quantity).toLocaleString()} د.ج</p>
-                    </div>
-                  ))}
-                  
-                  <div className="flex justify-between pt-2">
-                    <p className="font-bold">المجموع</p>
-                    <p className="font-bold text-algerian-green">{totalPrice.toLocaleString()} د.ج</p>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-center py-4 text-gray-500">سلة التسوق فارغة</p>
-              )}
+              <div className="text-center py-6">
+                <p className="text-lg font-bold mb-3">Micro Tech</p>
+                <p className="text-sm text-gray-600 mb-1">الجزائر، المسيلة، برهوم</p>
+                <p className="text-sm text-gray-600">0791764469</p>
+              </div>
+              
+              <div className="border-t pt-4">
+                <p className="text-center text-gray-600">
+                  سيتم الاتصال بك في أقرب وقت ممكن لتأكيد طلبك وتحديد تفاصيل التوصيل والدفع.
+                </p>
+              </div>
             </CardContent>
-            <CardFooter>
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={loading || items.length === 0}
-              >
-                {loading ? 'جاري إرسال الطلب...' : 'إرسال الطلب'}
-              </Button>
-            </CardFooter>
           </Card>
         </div>
       </div>

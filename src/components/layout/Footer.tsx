@@ -8,7 +8,7 @@ const Footer = () => {
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 rtl">
           <div>
-            <h3 className="text-xl font-bold mb-4">تيك ستور الجزائر</h3>
+            <h3 className="text-xl font-bold mb-4">Micro Tech</h3>
             <p className="mb-4">
               متجرك المفضل للكمبيوتر والإلكترونيات في الجزائر، نوفر أحدث المنتجات بأفضل الأسعار.
             </p>
@@ -39,11 +39,6 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/cart" className="hover:text-algerian-red transition-colors">
-                  سلة التسوق
-                </Link>
-              </li>
-              <li>
                 <Link to="/login" className="hover:text-algerian-red transition-colors">
                   تسجيل الدخول
                 </Link>
@@ -56,22 +51,22 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-center">
                 <MapPin size={20} className="ml-2" />
-                <span>شارع ديدوش مراد، الجزائر العاصمة</span>
+                <span>الجزائر، المسيلة، برهوم</span>
               </li>
               <li className="flex items-center">
                 <Phone size={20} className="ml-2" />
-                <span>+213 XX XX XX XX</span>
+                <span>0791764469</span>
               </li>
               <li className="flex items-center">
                 <Mail size={20} className="ml-2" />
-                <span>info@techstore-dz.com</span>
+                <span>info@microtech.dz</span>
               </li>
             </ul>
           </div>
         </div>
         
         <div className="border-t border-gray-800 mt-8 pt-8 text-center">
-          <p>&copy; {new Date().getFullYear()} تيك ستور الجزائر. جميع الحقوق محفوظة.</p>
+          <p>&copy; {new Date().getFullYear()} Micro Tech. جميع الحقوق محفوظة.</p>
         </div>
       </div>
     </footer>
