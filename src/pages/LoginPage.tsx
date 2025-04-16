@@ -48,7 +48,7 @@ const LoginPage = () => {
             <CardHeader className="text-center rtl">
               <CardTitle className="text-2xl font-bold">تسجيل الدخول</CardTitle>
               <CardDescription>
-                قم بتسجيل الدخول للوصول إلى حسابك
+                قم بتسجيل الدخول للوصول إلى لوحة التحكم
               </CardDescription>
             </CardHeader>
             <form onSubmit={handleSubmit}>
@@ -76,7 +76,7 @@ const LoginPage = () => {
                   />
                 </div>
                 <div className="text-sm text-gray-500 rtl">
-                  <p>للتجربة: استخدم admin / admin123 (كمدير) أو user / user123 (كمستخدم عادي)</p>
+                  <p>للمساعدة، يرجى التواصل مع مسؤول النظام</p>
                 </div>
               </CardContent>
               <CardFooter>

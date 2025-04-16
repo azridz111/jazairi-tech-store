@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
@@ -25,9 +24,9 @@ export const useAuth = () => {
   return context;
 };
 
-// Mock user data - in a real app this would come from a database
+// Updated mock user data with new credentials (username: halim, password: admin123@#$)
 const MOCK_USERS = [
-  { id: 1, username: 'admin', password: 'admin123', isAdmin: true },
+  { id: 1, username: 'halim', password: 'admin123@#$', isAdmin: true },
   { id: 2, username: 'user', password: 'user123', isAdmin: false },
 ];
 
