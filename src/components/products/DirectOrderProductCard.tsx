@@ -1,11 +1,12 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingBag, TicketPercent, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Dialog,
   DialogContent,
@@ -15,18 +16,10 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Product } from '@/data/products';
 import { toast } from 'sonner';
 import { createOrder } from '@/services/orders';
 import { wilayas } from '@/data/wilayas';
-import { getMunicipalitiesByWilayaId, getWilayaIdByName } from '@/data/municipalities';
 
 interface DirectOrderProductCardProps {
   product: Product;
@@ -37,32 +30,14 @@ const DirectOrderProductCard = ({ product }: DirectOrderProductCardProps) => {
     name: '',
     phone: '',
     wilaya: '',
-    municipality: '',
     address: '',
     notes: ''
   });
-  
-  const [availableMunicipalities, setAvailableMunicipalities] = useState<{id: number, name: string}[]>([]);
   
   const hasDiscount = product.oldPrice && product.oldPrice > product.price;
   const discountPercent = hasDiscount 
     ? Math.round(((product.oldPrice! - product.price) / product.oldPrice!) * 100) 
     : 0;
-  
-  // Update municipalities when wilaya changes
-  useEffect(() => {
-    if (formData.wilaya) {
-      const wilayaId = getWilayaIdByName(formData.wilaya);
-      if (wilayaId) {
-        const municipalities = getMunicipalitiesByWilayaId(wilayaId);
-        setAvailableMunicipalities(municipalities);
-        // Reset municipality when wilaya changes
-        setFormData(prev => ({ ...prev, municipality: '' }));
-      }
-    } else {
-      setAvailableMunicipalities([]);
-    }
-  }, [formData.wilaya]);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -76,15 +51,15 @@ const DirectOrderProductCard = ({ product }: DirectOrderProductCardProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.phone || !formData.wilaya || !formData.municipality) {
-      toast.error('يرجى إدخال الاسم، رقم الهاتف، الولاية والبلدية');
+    if (!formData.name || !formData.phone || !formData.wilaya) {
+      toast.error('يرجى إدخال الاسم، رقم الهاتف والولاية');
       return;
     }
     
     // Create full address
     const fullAddress = formData.address 
-      ? `${formData.address}، ${formData.municipality}، ${formData.wilaya}`
-      : `${formData.municipality}، ${formData.wilaya}`;
+      ? `${formData.address}، ${formData.wilaya}`
+      : `${formData.wilaya}`;
     
     // Create order
     createOrder({
@@ -105,7 +80,6 @@ const DirectOrderProductCard = ({ product }: DirectOrderProductCardProps) => {
       name: '',
       phone: '',
       wilaya: '',
-      municipality: '',
       address: '',
       notes: ''
     });
@@ -200,42 +174,26 @@ const DirectOrderProductCard = ({ product }: DirectOrderProductCardProps) => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="wilaya">الولاية</Label>
-                <Select 
-                  value={formData.wilaya}
-                  onValueChange={(value) => handleSelectChange('wilaya', value)}
-                  required
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="اختر الولاية" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {wilayas.map(wilaya => (
-                      <SelectItem key={wilaya.id} value={wilaya.name}>
-                        {wilaya.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="municipality">البلدية</Label>
-                <Select 
-                  value={formData.municipality}
-                  onValueChange={(value) => handleSelectChange('municipality', value)}
-                  disabled={!formData.wilaya}
-                  required
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="اختر البلدية" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableMunicipalities.map(municipality => (
-                      <SelectItem key={municipality.id} value={municipality.name}>
-                        {municipality.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="relative">
+                  <div className="border border-input rounded-md overflow-hidden">
+                    <ScrollArea className="h-[150px]">
+                      <div className="p-1">
+                        {wilayas.map(wilaya => (
+                          <div 
+                            key={wilaya.id}
+                            className={`px-3 py-2 cursor-pointer rounded-sm ${formData.wilaya === wilaya.name ? 'bg-accent text-accent-foreground' : 'hover:bg-accent/50'}`}
+                            onClick={() => handleSelectChange('wilaya', wilaya.name)}
+                          >
+                            {wilaya.name}
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </div>
+                  <div className="mt-1 text-sm text-muted-foreground">
+                    {formData.wilaya ? `الولاية المختارة: ${formData.wilaya}` : 'اختر الولاية'}
+                  </div>
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="address">العنوان (اختياري)</Label>

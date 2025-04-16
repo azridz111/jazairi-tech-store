@@ -1,20 +1,12 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { wilayas } from '@/data/wilayas';
-import { getMunicipalitiesByWilayaId, getWilayaIdByName } from '@/data/municipalities';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import {
   Card,
   CardContent,
@@ -23,6 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { createOrder } from '@/services/orders';
 
 interface FormData {
@@ -30,7 +23,6 @@ interface FormData {
   lastName: string;
   phoneNumber: string;
   wilaya: string;
-  municipality: string;
   address: string;
   notes: string;
 }
@@ -43,28 +35,11 @@ const CheckoutForm = () => {
     lastName: '',
     phoneNumber: '',
     wilaya: '',
-    municipality: '',
     address: '',
     notes: ''
   });
   
   const [loading, setLoading] = useState(false);
-  const [availableMunicipalities, setAvailableMunicipalities] = useState<{id: number, name: string}[]>([]);
-  
-  // Update municipalities when wilaya changes
-  useEffect(() => {
-    if (formData.wilaya) {
-      const wilayaId = getWilayaIdByName(formData.wilaya);
-      if (wilayaId) {
-        const municipalities = getMunicipalitiesByWilayaId(wilayaId);
-        setAvailableMunicipalities(municipalities);
-        // Reset municipality when wilaya changes
-        setFormData(prev => ({ ...prev, municipality: '' }));
-      }
-    } else {
-      setAvailableMunicipalities([]);
-    }
-  }, [formData.wilaya]);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -79,7 +54,7 @@ const CheckoutForm = () => {
     e.preventDefault();
     
     // Validate form
-    if (!formData.firstName || !formData.lastName || !formData.phoneNumber || !formData.wilaya || !formData.municipality || !formData.address) {
+    if (!formData.firstName || !formData.lastName || !formData.phoneNumber || !formData.wilaya || !formData.address) {
       toast.error('الرجاء إكمال جميع الحقول المطلوبة');
       return;
     }
@@ -90,8 +65,8 @@ const CheckoutForm = () => {
     try {
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Create the order with full address including municipality
-      const fullAddress = `${formData.address}، ${formData.municipality}، ${formData.wilaya}`;
+      // Create full address
+      const fullAddress = `${formData.address}، ${formData.wilaya}`;
       
       // Create an order object
       const orderData = {
@@ -166,43 +141,26 @@ const CheckoutForm = () => {
               
               <div className="space-y-2">
                 <Label htmlFor="wilaya">الولاية <span className="text-red-500">*</span></Label>
-                <Select 
-                  value={formData.wilaya}
-                  onValueChange={(value) => handleSelectChange('wilaya', value)}
-                  required
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="اختر الولاية" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {wilayas.map(wilaya => (
-                      <SelectItem key={wilaya.id} value={wilaya.name}>
-                        {wilaya.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="municipality">البلدية <span className="text-red-500">*</span></Label>
-                <Select 
-                  value={formData.municipality}
-                  onValueChange={(value) => handleSelectChange('municipality', value)}
-                  disabled={!formData.wilaya}
-                  required
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="اختر البلدية" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableMunicipalities.map(municipality => (
-                      <SelectItem key={municipality.id} value={municipality.name}>
-                        {municipality.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="relative">
+                  <div className="border border-input rounded-md overflow-hidden">
+                    <ScrollArea className="h-[150px]">
+                      <div className="p-1">
+                        {wilayas.map(wilaya => (
+                          <div 
+                            key={wilaya.id}
+                            className={`px-3 py-2 cursor-pointer rounded-sm ${formData.wilaya === wilaya.name ? 'bg-accent text-accent-foreground' : 'hover:bg-accent/50'}`}
+                            onClick={() => handleSelectChange('wilaya', wilaya.name)}
+                          >
+                            {wilaya.name}
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </div>
+                  <div className="mt-1 text-sm text-muted-foreground">
+                    {formData.wilaya ? `الولاية المختارة: ${formData.wilaya}` : 'اختر الولاية'}
+                  </div>
+                </div>
               </div>
               
               <div className="space-y-2">
