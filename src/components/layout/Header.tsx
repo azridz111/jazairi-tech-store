@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, User, Menu, X, Search, LogIn, LogOut, Store } from 'lucide-react';
+import { User, Menu, X, Search, LogIn, LogOut, Store } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -10,11 +10,9 @@ import {
   SheetTrigger,
   SheetClose
 } from "@/components/ui/sheet";
-import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 
 const Header = () => {
-  const { totalItems } = useCart();
   const { user, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -108,7 +106,7 @@ const Header = () => {
             )}
           </nav>
 
-          {/* Search, Cart, User */}
+          {/* Search, User */}
           <div className="flex items-center space-x-2 rtl">
             <form onSubmit={handleSearch} className="hidden md:flex relative">
               <Input
@@ -122,17 +120,6 @@ const Header = () => {
                 <Search className="h-5 w-5" />
               </Button>
             </form>
-            
-            <Link to="/cart">
-              <Button variant="ghost" size="icon" className="relative">
-                <ShoppingCart />
-                {totalItems > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-algerian-red text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                    {totalItems}
-                  </span>
-                )}
-              </Button>
-            </Link>
             
             {user ? (
               <Button

@@ -41,7 +41,7 @@ const DirectOrderProductCard = ({ product }: DirectOrderProductCardProps) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
   
-  const handleSubmit = (e: React.FormEvent, dialogClose: () => void) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.name || !formData.phone) {
@@ -71,8 +71,7 @@ const DirectOrderProductCard = ({ product }: DirectOrderProductCardProps) => {
       notes: ''
     });
     
-    // Close dialog
-    dialogClose();
+    // The dialog will be closed automatically by the DialogClose component
   };
   
   return (
@@ -186,12 +185,10 @@ const DirectOrderProductCard = ({ product }: DirectOrderProductCardProps) => {
             </form>
             <DialogFooter>
               <DialogClose asChild>
-                {close => (
-                  <Button type="submit" onClick={(e) => handleSubmit(e, close)}>
-                    <Send className="ml-2 h-4 w-4" />
-                    إرسال الطلب
-                  </Button>
-                )}
+                <Button type="submit" onClick={handleSubmit}>
+                  <Send className="ml-2 h-4 w-4" />
+                  إرسال الطلب
+                </Button>
               </DialogClose>
             </DialogFooter>
           </DialogContent>
