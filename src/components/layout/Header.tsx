@@ -87,7 +87,7 @@ const Header = () => {
             
             <Link to="/" className="flex items-center ml-2">
               <Store className="h-8 w-8 text-algerian-green" />
-              <span className="text-xl font-bold tracking-tight mr-2">تيك ستور الجزائر</span>
+              <span className="text-xl font-bold tracking-tight mr-2">Micro Tech</span>
             </Link>
           </div>
 
@@ -145,3 +145,4 @@ const Header = () => {
 };
 
 export default Header;
+
