@@ -2,19 +2,28 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Product, products } from '@/data/products';
-import { useCart } from '@/context/CartContext';
-import { ShoppingCart, ArrowRight, TicketPercent, Check } from 'lucide-react';
+import { ArrowRight, TicketPercent, Check, ShoppingBag, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import ProductCard from '@/components/products/ProductCard';
+import DirectOrderProductCard from '@/components/products/DirectOrderProductCard';
+import { toast } from 'sonner';
+import { createOrder } from '@/services/orders';
 
 const ProductDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
-  const { addToCart } = useCart();
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    address: '',
+    notes: ''
+  });
   
   useEffect(() => {
     // Find product by ID
@@ -32,6 +41,44 @@ const ProductDetailPage = () => {
       setSimilarProducts(similar);
     }
   }, [id]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!product) return;
+    
+    if (!formData.name || !formData.phone) {
+      toast.error('يرجى إدخال الاسم ورقم الهاتف');
+      return;
+    }
+    
+    // Create order
+    createOrder({
+      productId: product.id,
+      productName: product.name,
+      customerName: formData.name,
+      customerPhone: formData.phone,
+      customerAddress: formData.address,
+      notes: formData.notes,
+      totalPrice: product.price,
+      date: new Date().toISOString()
+    });
+    
+    toast.success('تم إرسال طلبك بنجاح، سنتصل بك قريبا');
+    
+    // Reset form
+    setFormData({
+      name: '',
+      phone: '',
+      address: '',
+      notes: ''
+    });
+  };
   
   if (!product) {
     return (
@@ -137,20 +184,63 @@ const ProductDetailPage = () => {
                 </div>
               </div>
               
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button 
-                  onClick={() => product.inStock && addToCart(product)}
-                  className="flex-1"
-                  size="lg"
-                  disabled={!product.inStock}
-                >
-                  <ShoppingCart className="ml-2 h-5 w-5" />
-                  إضافة للسلة
-                </Button>
-                <Button asChild variant="outline" size="lg" className="flex-1">
-                  <Link to="/cart">الذهاب للسلة</Link>
-                </Button>
-              </div>
+              {product.inStock && (
+                <div className="bg-white p-4 rounded-lg border mb-6">
+                  <h3 className="font-bold mb-3 text-lg">اطلب الآن</h3>
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">الاسم الكامل</Label>
+                      <Input 
+                        id="name" 
+                        name="name" 
+                        placeholder="أدخل اسمك الكامل" 
+                        value={formData.name} 
+                        onChange={handleChange} 
+                        required 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">رقم الهاتف</Label>
+                      <Input 
+                        id="phone" 
+                        name="phone" 
+                        placeholder="أدخل رقم هاتفك" 
+                        value={formData.phone} 
+                        onChange={handleChange} 
+                        required 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="address">العنوان</Label>
+                      <Input 
+                        id="address" 
+                        name="address" 
+                        placeholder="أدخل عنوانك" 
+                        value={formData.address} 
+                        onChange={handleChange} 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="notes">ملاحظات إضافية</Label>
+                      <Textarea 
+                        id="notes" 
+                        name="notes" 
+                        placeholder="أي ملاحظات إضافية حول طلبك" 
+                        value={formData.notes} 
+                        onChange={handleChange} 
+                      />
+                    </div>
+                    <Button 
+                      type="submit" 
+                      className="w-full"
+                      disabled={!product.inStock}
+                    >
+                      <Send className="ml-2 h-5 w-5" />
+                      إرسال الطلب
+                    </Button>
+                  </form>
+                </div>
+              )}
             </div>
           </div>
           
@@ -220,7 +310,7 @@ const ProductDetailPage = () => {
               <h2 className="text-2xl font-bold mb-6 rtl">منتجات مشابهة</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {similarProducts.map(product => (
-                  <ProductCard key={product.id} product={product} />
+                  <DirectOrderProductCard key={product.id} product={product} />
                 ))}
               </div>
             </div>

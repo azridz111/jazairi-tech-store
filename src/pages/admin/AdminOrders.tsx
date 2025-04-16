@@ -18,49 +18,40 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { toast } from 'sonner';
-
-type OrderStatus = 'processing' | 'completed' | 'cancelled';
-
-interface Order {
-  id: number;
-  date: string;
-  customer: string;
-  total: number;
-  status: OrderStatus;
-  items: number;
-}
-
-// استرجاع قائمة الطلبات من localStorage إذا كانت موجودة
-const getStoredOrders = (): Order[] => {
-  const storedOrders = localStorage.getItem('orders');
-  return storedOrders ? JSON.parse(storedOrders) : [];
-};
-
-// حفظ قائمة الطلبات في localStorage
-const saveOrders = (orders: Order[]) => {
-  localStorage.setItem('orders', JSON.stringify(orders));
-};
-
-// قائمة طلبات فارغة للبدء بها
-const mockOrders: Order[] = getStoredOrders();
-
-// متغير لتتبع آخر معرف طلب
-let lastOrderId = mockOrders.length > 0 
-  ? Math.max(...mockOrders.map(order => order.id)) 
-  : 1000;
+import { Order, getOrders, updateOrderStatus, deleteOrder } from '@/services/orders';
 
 const AdminOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   
+  // Load orders on component mount
   useEffect(() => {
-    // تحميل الطلبات
-    setOrders(mockOrders);
-    setLoading(false);
+    loadOrders();
   }, []);
+  
+  const loadOrders = () => {
+    setLoading(true);
+    try {
+      const ordersList = getOrders();
+      setOrders(ordersList);
+    } catch (error) {
+      console.error('Error loading orders:', error);
+      toast.error('حدث خطأ أثناء تحميل الطلبات');
+    } finally {
+      setLoading(false);
+    }
+  };
   
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -68,81 +59,71 @@ const AdminOrders = () => {
   
   const handleDeleteOrder = (id: number) => {
     if (window.confirm('هل أنت متأكد من حذف هذا الطلب؟')) {
-      const updatedOrders = orders.filter(order => order.id !== id);
-      setOrders(updatedOrders);
-      
-      // تحديث قائمة الطلبات العامة وحفظها في localStorage
-      const index = mockOrders.findIndex(order => order.id === id);
-      if (index !== -1) {
-        mockOrders.splice(index, 1);
-        saveOrders(mockOrders);
+      try {
+        const deleted = deleteOrder(id);
+        
+        if (deleted) {
+          setOrders(prev => prev.filter(order => order.id !== id));
+          toast.success('تم حذف الطلب بنجاح');
+        } else {
+          toast.error('فشل في حذف الطلب');
+        }
+      } catch (error) {
+        console.error('Error deleting order:', error);
+        toast.error('حدث خطأ أثناء حذف الطلب');
       }
+    }
+  };
+  
+  const handleChangeOrderStatus = (id: number, newStatus: 'pending' | 'completed' | 'cancelled') => {
+    try {
+      const updated = updateOrderStatus(id, newStatus);
       
-      toast.success('تم حذف الطلب بنجاح');
+      if (updated) {
+        setOrders(prev => 
+          prev.map(order => 
+            order.id === id 
+              ? { ...order, status: newStatus } 
+              : order
+          )
+        );
+        
+        const statusText = 
+          newStatus === 'completed' ? 'مكتمل' : 
+          newStatus === 'pending' ? 'قيد المعالجة' : 'ملغي';
+        
+        toast.success(`تم تغيير حالة الطلب إلى ${statusText}`);
+      } else {
+        toast.error('فشل في تحديث حالة الطلب');
+      }
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      toast.error('حدث خطأ أثناء تحديث حالة الطلب');
     }
   };
   
-  const handleChangeOrderStatus = (id: number, newStatus: OrderStatus) => {
-    setOrders(prev => 
-      prev.map(order => 
-        order.id === id 
-          ? { ...order, status: newStatus } 
-          : order
-      )
-    );
-    
-    // تحديث قائمة الطلبات العامة وحفظها في localStorage
-    const index = mockOrders.findIndex(order => order.id === id);
-    if (index !== -1) {
-      mockOrders[index].status = newStatus;
-      saveOrders(mockOrders);
-    }
-    
-    const statusText = 
-      newStatus === 'completed' ? 'مكتمل' : 
-      newStatus === 'processing' ? 'قيد المعالجة' : 'ملغي';
-    
-    toast.success(`تم تغيير حالة الطلب إلى ${statusText}`);
-  };
-  
-  // وظيفة لإضافة طلب اختباري جديد
-  const addTestOrder = () => {
-    const newOrder: Order = {
-      id: ++lastOrderId,
-      date: new Date().toISOString().split('T')[0],
-      customer: 'عميل جديد',
-      total: Math.floor(Math.random() * 300000) + 50000,
-      status: 'processing',
-      items: Math.floor(Math.random() * 5) + 1
-    };
-    
-    // تحديث حالة التطبيق المحلية
-    setOrders(prev => [...prev, newOrder]);
-    
-    // تحديث قائمة الطلبات العامة وحفظها في localStorage
-    mockOrders.push(newOrder);
-    saveOrders(mockOrders);
-    
-    toast.success('تم إضافة طلب اختباري جديد');
+  const viewOrderDetails = (order: Order) => {
+    setSelectedOrder(order);
   };
   
   const filteredOrders = orders.filter(order => {
-    // تصفية حسب البحث
+    // Filter by search term
     const matchesSearch = 
       order.id.toString().includes(searchTerm) ||
-      order.customer.toLowerCase().includes(searchTerm.toLowerCase());
+      order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.customerPhone.includes(searchTerm);
     
-    // تصفية حسب الحالة
+    // Filter by status
     const matchesStatus = statusFilter && statusFilter !== 'all' ? order.status === statusFilter : true;
     
     return matchesSearch && matchesStatus;
   });
   
-  const getStatusBadgeClass = (status: OrderStatus) => {
+  const getStatusBadgeClass = (status: string) => {
     switch (status) {
       case 'completed':
         return 'bg-green-100 text-green-800';
-      case 'processing':
+      case 'pending':
         return 'bg-blue-100 text-blue-800';
       case 'cancelled':
         return 'bg-red-100 text-red-800';
@@ -151,11 +132,11 @@ const AdminOrders = () => {
     }
   };
   
-  const getStatusText = (status: OrderStatus) => {
+  const getStatusText = (status: string) => {
     switch (status) {
       case 'completed':
         return 'مكتمل';
-      case 'processing':
+      case 'pending':
         return 'قيد المعالجة';
       case 'cancelled':
         return 'ملغي';
@@ -188,7 +169,7 @@ const AdminOrders = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">جميع الحالات</SelectItem>
-                  <SelectItem value="processing">قيد المعالجة</SelectItem>
+                  <SelectItem value="pending">قيد المعالجة</SelectItem>
                   <SelectItem value="completed">مكتمل</SelectItem>
                   <SelectItem value="cancelled">ملغي</SelectItem>
                 </SelectContent>
@@ -196,8 +177,8 @@ const AdminOrders = () => {
             </div>
           </div>
           
-          <Button onClick={addTestOrder} className="rtl">
-            إضافة طلب اختباري
+          <Button onClick={loadOrders} className="rtl">
+            تحديث الطلبات
           </Button>
         </div>
         
@@ -212,8 +193,9 @@ const AdminOrders = () => {
                 <TableRow>
                   <TableHead className="rtl">رقم الطلب</TableHead>
                   <TableHead className="rtl">تاريخ الطلب</TableHead>
-                  <TableHead className="rtl">العميل</TableHead>
-                  <TableHead className="rtl">عدد المنتجات</TableHead>
+                  <TableHead className="rtl">اسم العميل</TableHead>
+                  <TableHead className="rtl">رقم الهاتف</TableHead>
+                  <TableHead className="rtl">المنتج</TableHead>
                   <TableHead className="rtl">المبلغ الإجمالي</TableHead>
                   <TableHead className="rtl">الحالة</TableHead>
                   <TableHead className="rtl">إجراءات</TableHead>
@@ -224,9 +206,10 @@ const AdminOrders = () => {
                   <TableRow key={order.id}>
                     <TableCell className="font-medium rtl">#{order.id}</TableCell>
                     <TableCell className="rtl">{new Date(order.date).toLocaleDateString('ar')}</TableCell>
-                    <TableCell className="rtl">{order.customer}</TableCell>
-                    <TableCell className="rtl">{order.items}</TableCell>
-                    <TableCell className="rtl">{order.total.toLocaleString()} د.ج</TableCell>
+                    <TableCell className="rtl">{order.customerName}</TableCell>
+                    <TableCell className="rtl">{order.customerPhone}</TableCell>
+                    <TableCell className="rtl">{order.productName}</TableCell>
+                    <TableCell className="rtl">{order.totalPrice.toLocaleString()} د.ج</TableCell>
                     <TableCell>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeClass(order.status)} rtl`}>
                         {getStatusText(order.status)}
@@ -234,12 +217,66 @@ const AdminOrders = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex space-x-2 rtl space-x-reverse">
-                        <Button variant="outline" size="sm" className="rtl">
-                          <Eye className="h-4 w-4 ml-1" />
-                          عرض
-                        </Button>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="rtl"
+                              onClick={() => viewOrderDetails(order)}
+                            >
+                              <Eye className="h-4 w-4 ml-1" />
+                              عرض
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="rtl">
+                            <DialogHeader>
+                              <DialogTitle>تفاصيل الطلب #{order.id}</DialogTitle>
+                            </DialogHeader>
+                            {selectedOrder && (
+                              <div className="mt-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div>
+                                    <h3 className="text-lg font-bold mb-2">معلومات العميل</h3>
+                                    <p><strong>الاسم:</strong> {selectedOrder.customerName}</p>
+                                    <p><strong>رقم الهاتف:</strong> {selectedOrder.customerPhone}</p>
+                                    {selectedOrder.customerAddress && (
+                                      <p><strong>العنوان:</strong> {selectedOrder.customerAddress}</p>
+                                    )}
+                                  </div>
+                                  <div>
+                                    <h3 className="text-lg font-bold mb-2">معلومات الطلب</h3>
+                                    <p><strong>رقم الطلب:</strong> #{selectedOrder.id}</p>
+                                    <p><strong>التاريخ:</strong> {new Date(selectedOrder.date).toLocaleDateString('ar')}</p>
+                                    <p>
+                                      <strong>الحالة:</strong> 
+                                      <span className={`mr-2 px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeClass(selectedOrder.status)}`}>
+                                        {getStatusText(selectedOrder.status)}
+                                      </span>
+                                    </p>
+                                  </div>
+                                </div>
+                                
+                                <div className="mt-4">
+                                  <h3 className="text-lg font-bold mb-2">المنتج المطلوب</h3>
+                                  <div className="border rounded-lg p-3">
+                                    <p><strong>المنتج:</strong> {selectedOrder.productName}</p>
+                                    <p><strong>السعر:</strong> {selectedOrder.totalPrice.toLocaleString()} د.ج</p>
+                                  </div>
+                                </div>
+                                
+                                {selectedOrder.notes && (
+                                  <div className="mt-4">
+                                    <h3 className="text-lg font-bold mb-2">ملاحظات</h3>
+                                    <p>{selectedOrder.notes}</p>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </DialogContent>
+                        </Dialog>
                         
-                        {order.status === 'processing' && (
+                        {order.status === 'pending' && (
                           <Button 
                             variant="outline" 
                             size="sm" 
@@ -251,7 +288,7 @@ const AdminOrders = () => {
                           </Button>
                         )}
                         
-                        {order.status === 'processing' && (
+                        {order.status === 'pending' && (
                           <Button 
                             variant="outline" 
                             size="sm" 
@@ -278,7 +315,7 @@ const AdminOrders = () => {
                 ))}
                 {filteredOrders.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 rtl">
+                    <TableCell colSpan={8} className="text-center py-8 rtl">
                       لا توجد طلبات مطابقة للبحث
                     </TableCell>
                   </TableRow>

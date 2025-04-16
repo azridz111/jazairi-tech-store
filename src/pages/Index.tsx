@@ -1,6 +1,6 @@
 
 import Hero from '@/components/home/Hero';
-import FeaturedProducts from '@/components/home/FeaturedProducts';
+import DirectOrderFeaturedProducts from '@/components/home/DirectOrderFeaturedProducts';
 import Features from '@/components/home/Features';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -11,7 +11,7 @@ const Index = () => {
       <Header />
       <main className="flex-grow">
         <Hero />
-        <FeaturedProducts />
+        <DirectOrderFeaturedProducts />
         <Features />
       </main>
       <Footer />
