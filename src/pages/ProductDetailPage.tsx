@@ -8,20 +8,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import DirectOrderProductCard from '@/components/products/DirectOrderProductCard';
 import { toast } from 'sonner';
 import { createOrder } from '@/services/orders';
 import { wilayas } from '@/data/wilayas';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command";
 
 const ProductDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -35,7 +34,6 @@ const ProductDetailPage = () => {
     wilaya: '',
     notes: ''
   });
-  const [searchText, setSearchText] = useState("");
   
   useEffect(() => {
     // Find product by ID
@@ -54,20 +52,13 @@ const ProductDetailPage = () => {
     }
   }, [id]);
 
-  const filteredWilayas = searchText 
-    ? wilayas.filter((wilaya) => 
-        wilaya.name.toLowerCase().includes(searchText.toLowerCase())
-      )
-    : wilayas;
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
   
-  const handleWilayaSelect = (wilayaName: string) => {
-    setFormData(prev => ({ ...prev, wilaya: wilayaName }));
-    setSearchText("");
+  const handleWilayaSelect = (value: string) => {
+    setFormData(prev => ({ ...prev, wilaya: value }));
   };
   
   const handleSubmit = (e: React.FormEvent) => {
@@ -222,6 +213,7 @@ const ProductDetailPage = () => {
                         required 
                       />
                     </div>
+                    
                     <div className="space-y-2">
                       <Label htmlFor="phone">رقم الهاتف</Label>
                       <Input 
@@ -236,32 +228,21 @@ const ProductDetailPage = () => {
                     
                     <div className="space-y-2">
                       <Label htmlFor="wilaya">الولاية</Label>
-                      <Command className="rounded-lg border shadow-md">
-                        <CommandInput 
-                          placeholder="ابحث عن الولاية..." 
-                          value={searchText}
-                          onValueChange={setSearchText}
-                          className="text-right"
-                        />
-                        <CommandEmpty className="text-right p-2">لا توجد نتائج</CommandEmpty>
-                        <CommandGroup className="max-h-60 overflow-auto">
-                          {filteredWilayas.map((wilaya) => (
-                            <CommandItem
-                              key={wilaya.id}
-                              value={wilaya.name}
-                              onSelect={handleWilayaSelect}
-                              className="text-right cursor-pointer"
-                            >
+                      <Select
+                        value={formData.wilaya}
+                        onValueChange={handleWilayaSelect}
+                      >
+                        <SelectTrigger id="wilaya" className="w-full">
+                          <SelectValue placeholder="اختر الولاية" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {wilayas.map((wilaya) => (
+                            <SelectItem key={wilaya.id} value={wilaya.name}>
                               {wilaya.name}
-                            </CommandItem>
+                            </SelectItem>
                           ))}
-                        </CommandGroup>
-                      </Command>
-                      {formData.wilaya && (
-                        <p className="text-sm text-muted-foreground mt-1">
-                          الولاية المختارة: {formData.wilaya}
-                        </p>
-                      )}
+                        </SelectContent>
+                      </Select>
                     </div>
                     
                     <div className="space-y-2">
@@ -274,6 +255,7 @@ const ProductDetailPage = () => {
                         onChange={handleChange} 
                       />
                     </div>
+                    
                     <div className="space-y-2">
                       <Label htmlFor="notes">ملاحظات إضافية</Label>
                       <Textarea 
@@ -284,6 +266,7 @@ const ProductDetailPage = () => {
                         onChange={handleChange} 
                       />
                     </div>
+                    
                     <Button 
                       type="submit" 
                       className="w-full sticky bottom-2 z-10"
