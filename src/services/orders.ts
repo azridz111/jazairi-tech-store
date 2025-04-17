@@ -5,7 +5,7 @@
 
 // Define the Order interface for type safety
 export interface Order {
-  id?: string;
+  id: string;
   productId: number;
   productName: string;
   customerName: string;
@@ -14,6 +14,7 @@ export interface Order {
   notes: string;
   totalPrice: number;
   date: string;
+  status: 'pending' | 'completed' | 'cancelled';
 }
 
 /**
@@ -21,14 +22,15 @@ export interface Order {
  * @param order Order data to be stored
  * @returns The ID of the created order
  */
-export const createOrder = (order: Order): string => {
+export const createOrder = (order: Omit<Order, 'id' | 'status'>): string => {
   // Generate a unique ID for the order
   const orderId = `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   
-  // Add the ID to the order object
+  // Add the ID to the order object with default pending status
   const orderWithId = {
     ...order,
-    id: orderId
+    id: orderId,
+    status: 'pending' as const
   };
   
   // Get existing orders from localStorage
@@ -69,6 +71,16 @@ export const updateOrder = (orderId: string, updatedOrder: Partial<Order>): bool
   localStorage.setItem('orders', JSON.stringify(orders));
   
   return true;
+};
+
+/**
+ * Updates the status of an order
+ * @param orderId ID of the order to update
+ * @param newStatus New status to set
+ * @returns boolean indicating success
+ */
+export const updateOrderStatus = (orderId: string, newStatus: 'pending' | 'completed' | 'cancelled'): boolean => {
+  return updateOrder(orderId, { status: newStatus });
 };
 
 /**

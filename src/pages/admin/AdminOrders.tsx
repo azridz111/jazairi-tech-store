@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Eye, Trash2, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -57,7 +56,7 @@ const AdminOrders = () => {
     setSearchTerm(e.target.value);
   };
   
-  const handleDeleteOrder = (id: number) => {
+  const handleDeleteOrder = (id: string) => {
     if (window.confirm('هل أنت متأكد من حذف هذا الطلب؟')) {
       try {
         const deleted = deleteOrder(id);
@@ -75,7 +74,7 @@ const AdminOrders = () => {
     }
   };
   
-  const handleChangeOrderStatus = (id: number, newStatus: 'pending' | 'completed' | 'cancelled') => {
+  const handleChangeOrderStatus = (id: string, newStatus: 'pending' | 'completed' | 'cancelled') => {
     try {
       const updated = updateOrderStatus(id, newStatus);
       
