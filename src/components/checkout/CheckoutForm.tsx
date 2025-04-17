@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { createOrder } from '@/services/orders';
+import { Send, Search } from 'lucide-react';
 
 interface FormData {
   firstName: string;
@@ -40,6 +41,7 @@ const CheckoutForm = () => {
   });
   
   const [loading, setLoading] = useState(false);
+  const [searchWilaya, setSearchWilaya] = useState('');
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -81,7 +83,15 @@ const CheckoutForm = () => {
       };
       
       // Create the order
-      createOrder(orderData);
+      const orderId = createOrder(orderData);
+      
+      // Store order data in localStorage to allow editing later
+      const savedOrders = JSON.parse(localStorage.getItem('userOrders') || '[]');
+      savedOrders.push({
+        id: orderId,
+        ...orderData
+      });
+      localStorage.setItem('userOrders', JSON.stringify(savedOrders));
       
       toast.success('تم إرسال طلبك بنجاح');
       navigate('/order-success');
@@ -93,6 +103,11 @@ const CheckoutForm = () => {
     }
   };
   
+  // Filter wilayas based on search term
+  const filteredWilayas = wilayas.filter(wilaya => 
+    wilaya.name.includes(searchWilaya)
+  );
+  
   return (
     <form onSubmit={handleSubmit} className="rtl">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -103,6 +118,16 @@ const CheckoutForm = () => {
               <CardDescription>أدخل بياناتك الشخصية لإتمام الطلب</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Submit button moved to the top for better accessibility */}
+              <Button
+                type="submit"
+                className="w-full mb-4 sticky top-0 z-10"
+                disabled={loading}
+              >
+                <Send className="ml-2 h-5 w-5" />
+                {loading ? 'جاري إرسال الطلب...' : 'إرسال الطلب'}
+              </Button>
+            
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">الاسم <span className="text-red-500">*</span></Label>
@@ -142,10 +167,20 @@ const CheckoutForm = () => {
               <div className="space-y-2">
                 <Label htmlFor="wilaya">الولاية <span className="text-red-500">*</span></Label>
                 <div className="relative">
+                  <div className="mb-2 relative">
+                    <Input
+                      id="wilayaSearch"
+                      placeholder="البحث عن الولاية..."
+                      value={searchWilaya}
+                      onChange={(e) => setSearchWilaya(e.target.value)}
+                      className="pr-10"
+                    />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  </div>
                   <div className="border border-input rounded-md overflow-hidden">
                     <ScrollArea className="h-[150px]">
                       <div className="p-1">
-                        {wilayas.map(wilaya => (
+                        {filteredWilayas.map(wilaya => (
                           <div 
                             key={wilaya.id}
                             className={`px-3 py-2 cursor-pointer rounded-sm ${formData.wilaya === wilaya.name ? 'bg-accent text-accent-foreground' : 'hover:bg-accent/50'}`}
@@ -185,16 +220,17 @@ const CheckoutForm = () => {
                   rows={3}
                 />
               </div>
-            </CardContent>
-            <CardFooter>
+              
+              {/* Duplicate submit button at the bottom for convenience */}
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full mt-4"
                 disabled={loading}
               >
+                <Send className="ml-2 h-5 w-5" />
                 {loading ? 'جاري إرسال الطلب...' : 'إرسال الطلب'}
               </Button>
-            </CardFooter>
+            </CardContent>
           </Card>
         </div>
         

@@ -1,94 +1,87 @@
 
-import { toast } from 'sonner';
+/**
+ * Orders service for storing and managing orders
+ */
 
+// Define the Order interface for type safety
 export interface Order {
-  id: number;
+  id?: string;
   productId: number;
   productName: string;
   customerName: string;
   customerPhone: string;
-  customerAddress?: string;
-  notes?: string;
-  totalPrice: number;
-  date: string;
-  status: 'pending' | 'completed' | 'cancelled';
-}
-
-interface CreateOrderData {
-  productId: number;
-  productName: string;
-  customerName: string;
-  customerPhone: string;
-  customerAddress?: string;
-  notes?: string;
+  customerAddress: string;
+  notes: string;
   totalPrice: number;
   date: string;
 }
 
-// Get orders from localStorage
-export const getOrders = (): Order[] => {
-  const storedOrders = localStorage.getItem('orders');
-  return storedOrders ? JSON.parse(storedOrders) : [];
-};
-
-// Save orders to localStorage
-export const saveOrders = (orders: Order[]) => {
-  localStorage.setItem('orders', JSON.stringify(orders));
-};
-
-// Create a new order
-export const createOrder = (orderData: CreateOrderData): Order => {
-  const orders = getOrders();
+/**
+ * Creates a new order and stores it in localStorage
+ * @param order Order data to be stored
+ * @returns The ID of the created order
+ */
+export const createOrder = (order: Order): string => {
+  // Generate a unique ID for the order
+  const orderId = `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   
-  // Generate a new ID
-  const newId = orders.length > 0 
-    ? Math.max(...orders.map(order => order.id)) + 1 
-    : 1001;
-  
-  const newOrder: Order = {
-    id: newId,
-    ...orderData,
-    status: 'pending'
+  // Add the ID to the order object
+  const orderWithId = {
+    ...order,
+    id: orderId
   };
   
-  // Add the new order to the list
-  orders.push(newOrder);
+  // Get existing orders from localStorage
+  const existingOrders = localStorage.getItem('orders');
+  const orders = existingOrders ? JSON.parse(existingOrders) : [];
   
-  // Save to localStorage
-  saveOrders(orders);
+  // Add the new order to the orders array
+  orders.push(orderWithId);
   
-  return newOrder;
+  // Save the updated orders back to localStorage
+  localStorage.setItem('orders', JSON.stringify(orders));
+  
+  return orderId;
 };
 
-// Get order by ID
-export const getOrderById = (id: number): Order | undefined => {
-  const orders = getOrders();
-  return orders.find(order => order.id === id);
+/**
+ * Gets all orders from localStorage
+ * @returns Array of orders
+ */
+export const getOrders = (): Order[] => {
+  const orders = localStorage.getItem('orders');
+  return orders ? JSON.parse(orders) : [];
 };
 
-// Update order status
-export const updateOrderStatus = (id: number, status: 'pending' | 'completed' | 'cancelled'): boolean => {
+/**
+ * Updates an existing order
+ * @param orderId ID of the order to update
+ * @param updatedOrder Updated order data
+ * @returns boolean indicating success
+ */
+export const updateOrder = (orderId: string, updatedOrder: Partial<Order>): boolean => {
   const orders = getOrders();
-  const index = orders.findIndex(order => order.id === id);
+  const orderIndex = orders.findIndex(order => order.id === orderId);
   
-  if (index !== -1) {
-    orders[index].status = status;
-    saveOrders(orders);
-    return true;
-  }
+  if (orderIndex === -1) return false;
   
-  return false;
+  orders[orderIndex] = { ...orders[orderIndex], ...updatedOrder };
+  localStorage.setItem('orders', JSON.stringify(orders));
+  
+  return true;
 };
 
-// Delete order
-export const deleteOrder = (id: number): boolean => {
+/**
+ * Deletes an order by its ID
+ * @param orderId ID of the order to delete
+ * @returns boolean indicating success
+ */
+export const deleteOrder = (orderId: string): boolean => {
   const orders = getOrders();
-  const filteredOrders = orders.filter(order => order.id !== id);
+  const filteredOrders = orders.filter(order => order.id !== orderId);
   
-  if (filteredOrders.length < orders.length) {
-    saveOrders(filteredOrders);
-    return true;
-  }
+  if (filteredOrders.length === orders.length) return false;
   
-  return false;
+  localStorage.setItem('orders', JSON.stringify(filteredOrders));
+  return true;
 };
