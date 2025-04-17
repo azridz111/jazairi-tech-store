@@ -43,6 +43,11 @@ export const createOrder = (order: Omit<Order, 'id' | 'status'>): string => {
   // Save the updated orders back to localStorage
   localStorage.setItem('orders', JSON.stringify(orders));
   
+  // Also save to userOrders for editing functionality
+  const userOrders = JSON.parse(localStorage.getItem('userOrders') || '[]');
+  userOrders.push(orderWithId);
+  localStorage.setItem('userOrders', JSON.stringify(userOrders));
+  
   return orderId;
 };
 
@@ -62,6 +67,7 @@ export const getOrders = (): Order[] => {
  * @returns boolean indicating success
  */
 export const updateOrder = (orderId: string, updatedOrder: Partial<Order>): boolean => {
+  // Update in main orders
   const orders = getOrders();
   const orderIndex = orders.findIndex(order => order.id === orderId);
   
@@ -69,6 +75,15 @@ export const updateOrder = (orderId: string, updatedOrder: Partial<Order>): bool
   
   orders[orderIndex] = { ...orders[orderIndex], ...updatedOrder };
   localStorage.setItem('orders', JSON.stringify(orders));
+  
+  // Update in userOrders as well for consistency
+  const userOrders = JSON.parse(localStorage.getItem('userOrders') || '[]');
+  const userOrderIndex = userOrders.findIndex((order: Order) => order.id === orderId);
+  
+  if (userOrderIndex !== -1) {
+    userOrders[userOrderIndex] = { ...userOrders[userOrderIndex], ...updatedOrder };
+    localStorage.setItem('userOrders', JSON.stringify(userOrders));
+  }
   
   return true;
 };
@@ -89,11 +104,18 @@ export const updateOrderStatus = (orderId: string, newStatus: 'pending' | 'compl
  * @returns boolean indicating success
  */
 export const deleteOrder = (orderId: string): boolean => {
+  // Delete from main orders
   const orders = getOrders();
   const filteredOrders = orders.filter(order => order.id !== orderId);
   
   if (filteredOrders.length === orders.length) return false;
   
   localStorage.setItem('orders', JSON.stringify(filteredOrders));
+  
+  // Delete from userOrders as well
+  const userOrders = JSON.parse(localStorage.getItem('userOrders') || '[]');
+  const filteredUserOrders = userOrders.filter((order: Order) => order.id !== orderId);
+  localStorage.setItem('userOrders', JSON.stringify(filteredUserOrders));
+  
   return true;
 };

@@ -1,29 +1,41 @@
 
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Product, products } from '@/data/products';
-import { ArrowRight, TicketPercent, Check, ShoppingBag, Send } from 'lucide-react';
+import { ArrowRight, TicketPercent, Check, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import DirectOrderProductCard from '@/components/products/DirectOrderProductCard';
 import { toast } from 'sonner';
 import { createOrder } from '@/services/orders';
+import { wilayas } from '@/data/wilayas';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
 
 const ProductDetailPage = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [product, setProduct] = useState<Product | null>(null);
   const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
     address: '',
+    wilaya: '',
     notes: ''
   });
+  const [searchText, setSearchText] = useState("");
   
   useEffect(() => {
     // Find product by ID
@@ -42,9 +54,20 @@ const ProductDetailPage = () => {
     }
   }, [id]);
 
+  const filteredWilayas = searchText 
+    ? wilayas.filter((wilaya) => 
+        wilaya.name.toLowerCase().includes(searchText.toLowerCase())
+      )
+    : wilayas;
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+  
+  const handleWilayaSelect = (wilayaName: string) => {
+    setFormData(prev => ({ ...prev, wilaya: wilayaName }));
+    setSearchText("");
   };
   
   const handleSubmit = (e: React.FormEvent) => {
@@ -52,10 +75,15 @@ const ProductDetailPage = () => {
     
     if (!product) return;
     
-    if (!formData.name || !formData.phone) {
-      toast.error('يرجى إدخال الاسم ورقم الهاتف');
+    if (!formData.name || !formData.phone || !formData.wilaya) {
+      toast.error('يرجى إدخال الاسم ورقم الهاتف والولاية');
       return;
     }
+    
+    // Create full address with wilaya
+    const fullAddress = formData.address 
+      ? `${formData.address}، ${formData.wilaya}`
+      : formData.wilaya;
     
     // Create order
     createOrder({
@@ -63,7 +91,7 @@ const ProductDetailPage = () => {
       productName: product.name,
       customerName: formData.name,
       customerPhone: formData.phone,
-      customerAddress: formData.address,
+      customerAddress: fullAddress,
       notes: formData.notes,
       totalPrice: product.price,
       date: new Date().toISOString()
@@ -71,13 +99,8 @@ const ProductDetailPage = () => {
     
     toast.success('تم إرسال طلبك بنجاح، سنتصل بك قريبا');
     
-    // Reset form
-    setFormData({
-      name: '',
-      phone: '',
-      address: '',
-      notes: ''
-    });
+    // Navigate to order success page
+    navigate('/order-success');
   };
   
   if (!product) {
@@ -210,6 +233,37 @@ const ProductDetailPage = () => {
                         required 
                       />
                     </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="wilaya">الولاية</Label>
+                      <Command className="rounded-lg border shadow-md">
+                        <CommandInput 
+                          placeholder="ابحث عن الولاية..." 
+                          value={searchText}
+                          onValueChange={setSearchText}
+                          className="text-right"
+                        />
+                        <CommandEmpty className="text-right p-2">لا توجد نتائج</CommandEmpty>
+                        <CommandGroup className="max-h-60 overflow-auto">
+                          {filteredWilayas.map((wilaya) => (
+                            <CommandItem
+                              key={wilaya.id}
+                              value={wilaya.name}
+                              onSelect={handleWilayaSelect}
+                              className="text-right cursor-pointer"
+                            >
+                              {wilaya.name}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </Command>
+                      {formData.wilaya && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          الولاية المختارة: {formData.wilaya}
+                        </p>
+                      )}
+                    </div>
+                    
                     <div className="space-y-2">
                       <Label htmlFor="address">العنوان</Label>
                       <Input 
@@ -232,7 +286,7 @@ const ProductDetailPage = () => {
                     </div>
                     <Button 
                       type="submit" 
-                      className="w-full"
+                      className="w-full sticky bottom-2 z-10"
                       disabled={!product.inStock}
                     >
                       <Send className="ml-2 h-5 w-5" />

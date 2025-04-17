@@ -1,10 +1,12 @@
 
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CheckCircle, Home, Package, Edit, Trash2 } from 'lucide-react';
+import { CheckCircle, Home, Package, Edit, Trash2, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { wilayas } from '@/data/wilayas';
 import {
   Dialog,
   DialogContent,
@@ -24,9 +26,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { toast } from 'sonner';
+import { updateOrder, deleteOrder } from '@/services/orders';
 
 interface OrderData {
   id: string;
@@ -38,6 +48,7 @@ interface OrderData {
   notes: string;
   totalPrice: number;
   date: string;
+  status: 'pending' | 'completed' | 'cancelled';
 }
 
 const OrderSuccessPage = () => {
@@ -47,8 +58,11 @@ const OrderSuccessPage = () => {
     customerName: '',
     customerPhone: '',
     customerAddress: '',
+    wilaya: '',
+    address: '',
     notes: ''
   });
+  const [searchText, setSearchText] = useState('');
   
   // Generate a random order ID
   const orderId = Math.floor(100000 + Math.random() * 900000);
@@ -66,12 +80,19 @@ const OrderSuccessPage = () => {
     const lastOrder = savedOrders[savedOrders.length - 1];
     setOrderData(lastOrder);
     
+    // Extract wilaya and address from customerAddress
+    const addressParts = lastOrder.customerAddress.split('، ');
+    const wilaya = addressParts.length > 1 ? addressParts[addressParts.length - 1] : '';
+    const address = addressParts.length > 1 ? addressParts.slice(0, -1).join('، ') : lastOrder.customerAddress;
+    
     // Initialize edit form with current data
     if (lastOrder) {
       setEditForm({
         customerName: lastOrder.customerName,
         customerPhone: lastOrder.customerPhone,
         customerAddress: lastOrder.customerAddress,
+        wilaya: wilaya,
+        address: address,
         notes: lastOrder.notes || ''
       });
     }
@@ -80,53 +101,71 @@ const OrderSuccessPage = () => {
     localStorage.setItem('lastOrderDate', new Date().toISOString());
   }, [navigate]);
   
+  const filteredWilayas = searchText 
+    ? wilayas.filter((wilaya) => 
+        wilaya.name.toLowerCase().includes(searchText.toLowerCase())
+      )
+    : wilayas;
+  
   const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setEditForm(prev => ({ ...prev, [name]: value }));
   };
   
+  const handleWilayaSelect = (wilayaName: string) => {
+    setEditForm(prev => ({ ...prev, wilaya: wilayaName }));
+    setSearchText("");
+  };
+  
   const handleSaveEdit = () => {
     if (!orderData) return;
     
+    if (!editForm.customerName || !editForm.customerPhone || !editForm.wilaya) {
+      toast.error('يرجى إدخال الاسم ورقم الهاتف والولاية');
+      return;
+    }
+    
+    // Create the full address
+    const fullAddress = editForm.address 
+      ? `${editForm.address}، ${editForm.wilaya}`
+      : editForm.wilaya;
+    
     // Update order in localStorage
-    const savedOrders = JSON.parse(localStorage.getItem('userOrders') || '[]');
-    const updatedOrders = savedOrders.map((order: OrderData) => {
-      if (order.id === orderData.id) {
-        return {
-          ...order,
-          customerName: editForm.customerName,
-          customerPhone: editForm.customerPhone,
-          customerAddress: editForm.customerAddress,
-          notes: editForm.notes
-        };
-      }
-      return order;
-    });
-    
-    localStorage.setItem('userOrders', JSON.stringify(updatedOrders));
-    
-    // Update current order data
-    setOrderData({
-      ...orderData,
+    const updateSuccess = updateOrder(orderData.id, {
       customerName: editForm.customerName,
       customerPhone: editForm.customerPhone,
-      customerAddress: editForm.customerAddress,
+      customerAddress: fullAddress,
       notes: editForm.notes
     });
     
-    toast.success('تم تحديث معلومات الطلب بنجاح');
+    if (updateSuccess) {
+      // Update current order data in the state
+      setOrderData({
+        ...orderData,
+        customerName: editForm.customerName,
+        customerPhone: editForm.customerPhone,
+        customerAddress: fullAddress,
+        notes: editForm.notes
+      });
+      
+      toast.success('تم تحديث معلومات الطلب بنجاح');
+    } else {
+      toast.error('حدث خطأ أثناء تحديث الطلب');
+    }
   };
   
   const handleDeleteOrder = () => {
     if (!orderData) return;
     
     // Remove order from localStorage
-    const savedOrders = JSON.parse(localStorage.getItem('userOrders') || '[]');
-    const updatedOrders = savedOrders.filter((order: OrderData) => order.id !== orderData.id);
-    localStorage.setItem('userOrders', JSON.stringify(updatedOrders));
+    const deleteSuccess = deleteOrder(orderData.id);
     
-    toast.success('تم حذف الطلب بنجاح');
-    navigate('/');
+    if (deleteSuccess) {
+      toast.success('تم حذف الطلب بنجاح');
+      navigate('/');
+    } else {
+      toast.error('حدث خطأ أثناء حذف الطلب');
+    }
   };
   
   if (!orderData) {
@@ -150,6 +189,8 @@ const OrderSuccessPage = () => {
             
             <div className="bg-gray-50 p-6 rounded-lg mb-8 rtl">
               <p className="text-gray-700 mb-2">رقم الطلب: <span className="font-bold">{orderId}</span></p>
+              <p className="text-gray-700 mb-2">المنتج: <span className="font-bold">{orderData.productName}</span></p>
+              <p className="text-gray-700 mb-2">السعر: <span className="font-bold">{orderData.totalPrice.toLocaleString()} د.ج</span></p>
               <p className="text-gray-700 mb-4">تاريخ الطلب: <span className="font-bold">{new Date(orderData.date).toLocaleDateString('ar')}</span></p>
               
               <div className="text-right border-t pt-4 mt-4">
@@ -190,15 +231,47 @@ const OrderSuccessPage = () => {
                           onChange={handleEditChange}
                         />
                       </div>
+                      
                       <div className="space-y-2">
-                        <label htmlFor="customerAddress" className="text-sm font-medium">العنوان</label>
+                        <label htmlFor="wilaya" className="text-sm font-medium">الولاية</label>
+                        <Command className="rounded-lg border shadow-md">
+                          <CommandInput 
+                            placeholder="ابحث عن الولاية..." 
+                            value={searchText}
+                            onValueChange={setSearchText}
+                            className="text-right"
+                          />
+                          <CommandEmpty className="text-right p-2">لا توجد نتائج</CommandEmpty>
+                          <CommandGroup className="max-h-48 overflow-auto">
+                            {filteredWilayas.map((wilaya) => (
+                              <CommandItem
+                                key={wilaya.id}
+                                value={wilaya.name}
+                                onSelect={() => handleWilayaSelect(wilaya.name)}
+                                className="text-right cursor-pointer"
+                              >
+                                {wilaya.name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </Command>
+                        {editForm.wilaya && (
+                          <p className="text-sm text-muted-foreground mt-1">
+                            الولاية المختارة: {editForm.wilaya}
+                          </p>
+                        )}
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label htmlFor="address" className="text-sm font-medium">العنوان التفصيلي</label>
                         <Input
-                          id="customerAddress"
-                          name="customerAddress"
-                          value={editForm.customerAddress}
+                          id="address"
+                          name="address"
+                          value={editForm.address}
                           onChange={handleEditChange}
                         />
                       </div>
+                      
                       <div className="space-y-2">
                         <label htmlFor="notes" className="text-sm font-medium">ملاحظات</label>
                         <Textarea
@@ -210,7 +283,10 @@ const OrderSuccessPage = () => {
                       </div>
                     </div>
                     <DialogFooter>
-                      <Button onClick={handleSaveEdit}>حفظ التغييرات</Button>
+                      <Button onClick={handleSaveEdit}>
+                        <Send className="ml-2 h-4 w-4" />
+                        حفظ التغييرات
+                      </Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>

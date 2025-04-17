@@ -12,6 +12,7 @@ import Index from "./pages/Index";
 import ProductsPage from "./pages/ProductsPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import LoginPage from "./pages/LoginPage";
+import OrderSuccessPage from "./pages/OrderSuccessPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminProductForm from "./pages/admin/AdminProductForm";
@@ -33,6 +34,7 @@ const App = () => (
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/product/:id" element={<ProductDetailPage />} />
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/order-success" element={<OrderSuccessPage />} />
               
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminDashboard />}>
