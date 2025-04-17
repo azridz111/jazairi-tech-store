@@ -4,61 +4,93 @@ import { Link } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Product, products as initialProducts, saveProducts } from '@/data/products';
+import { loadProducts, deleteProduct, products, updateProduct } from '@/data/products';
 import AdminProductList from '@/components/admin/AdminProductList';
 import { toast } from 'sonner';
+import type { Product } from '@/data/products';
 
 const AdminProducts = () => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [productsList, setProductsList] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
     // تحميل المنتجات
-    setProducts(initialProducts);
-    setLoading(false);
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        await loadProducts();
+        setProductsList([...products]);
+      } catch (error) {
+        console.error('Error loading products:', error);
+        toast.error('حدث خطأ أثناء تحميل المنتجات');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchProducts();
   }, []);
   
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
   
-  const filteredProducts = products.filter(product => 
+  const filteredProducts = productsList.filter(product => 
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
   
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     // التأكيد قبل الحذف
     if (window.confirm('هل أنت متأكد من رغبتك في حذف هذا المنتج؟')) {
-      // تحديث حالة التطبيق المحلية
-      const updatedProducts = products.filter(product => product.id !== id);
-      setProducts(updatedProducts);
-      
-      // تحديث المصفوفة العامة وحفظها في localStorage
-      const index = initialProducts.findIndex(product => product.id === id);
-      if (index !== -1) {
-        initialProducts.splice(index, 1);
-        saveProducts(); // حفظ في localStorage
+      try {
+        // حذف المنتج من قاعدة البيانات
+        const success = await deleteProduct(id);
+        
+        if (success) {
+          // تحديث حالة التطبيق المحلية
+          setProductsList(prev => prev.filter(product => product.id !== id));
+          toast.success('تم حذف المنتج بنجاح');
+        } else {
+          toast.error('فشل حذف المنتج');
+        }
+      } catch (error) {
+        console.error('Error deleting product:', error);
+        toast.error('حدث خطأ أثناء حذف المنتج');
       }
-      
-      toast.success('تم حذف المنتج بنجاح');
     }
   };
   
-  const handleToggleStock = (id: number, inStock: boolean) => {
-    // تحديث حالة التطبيق المحلية
-    setProducts(products.map(product => 
-      product.id === id ? { ...product, inStock } : product
-    ));
-    
-    // تحديث المصفوفة العامة وحفظها في localStorage
-    const index = initialProducts.findIndex(product => product.id === id);
-    if (index !== -1) {
-      initialProducts[index].inStock = inStock;
-      saveProducts(); // حفظ في localStorage
+  const handleToggleStock = async (id: number, inStock: boolean) => {
+    try {
+      // إيجاد المنتج في القائمة
+      const product = productsList.find(p => p.id === id);
+      
+      if (!product) {
+        toast.error('المنتج غير موجود');
+        return;
+      }
+      
+      // تحديث حالة المخزون
+      const updatedProduct = { ...product, inStock };
+      
+      // تحديث في قاعدة البيانات
+      const success = await updateProduct(id, updatedProduct);
+      
+      if (success) {
+        // تحديث حالة التطبيق المحلية
+        setProductsList(productsList.map(product => 
+          product.id === id ? { ...product, inStock } : product
+        ));
+        
+        toast.success(`تم ${inStock ? 'توفير' : 'نفاذ'} المنتج بنجاح`);
+      } else {
+        toast.error('فشل تحديث حالة المنتج');
+      }
+    } catch (error) {
+      console.error('Error updating product stock:', error);
+      toast.error('حدث خطأ أثناء تحديث حالة المنتج');
     }
-    
-    toast.success(`تم ${inStock ? 'توفير' : 'نفاذ'} المنتج بنجاح`);
   };
   
   return (

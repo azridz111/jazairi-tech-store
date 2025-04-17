@@ -4,9 +4,12 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
 
 import { AuthProvider } from '@/context/AuthContext';
 import { CartProvider } from '@/context/CartContext';
+import { initializeDatabase } from '@/services/database';
+import { loadProducts } from '@/data/products';
 
 import Index from "./pages/Index";
 import ProductsPage from "./pages/ProductsPage";
@@ -21,36 +24,50 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
-        <CartProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/products" element={<ProductsPage />} />
-              <Route path="/product/:id" element={<ProductDetailPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/order-success" element={<OrderSuccessPage />} />
-              
-              {/* Admin Routes */}
-              <Route path="/admin" element={<AdminDashboard />}>
-                <Route path="products" element={<AdminProducts />} />
-                <Route path="products/add" element={<AdminProductForm />} />
-                <Route path="products/edit/:id" element={<AdminProductForm />} />
-                <Route path="orders" element={<AdminOrders />} />
-              </Route>
-              
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </CartProvider>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  // Initialize the database when the app starts
+  useEffect(() => {
+    const init = async () => {
+      await initializeDatabase();
+      await loadProducts();
+    };
+    
+    init().catch(error => {
+      console.error('Error initializing application:', error);
+    });
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <AuthProvider>
+          <CartProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/products" element={<ProductsPage />} />
+                <Route path="/product/:id" element={<ProductDetailPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/order-success" element={<OrderSuccessPage />} />
+                
+                {/* Admin Routes */}
+                <Route path="/admin" element={<AdminDashboard />}>
+                  <Route path="products" element={<AdminProducts />} />
+                  <Route path="products/add" element={<AdminProductForm />} />
+                  <Route path="products/edit/:id" element={<AdminProductForm />} />
+                  <Route path="orders" element={<AdminOrders />} />
+                </Route>
+                
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </CartProvider>
+        </AuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

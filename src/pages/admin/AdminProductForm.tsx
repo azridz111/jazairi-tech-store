@@ -2,14 +2,18 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { Product, products as initialProducts, saveProducts } from '@/data/products';
+import { 
+  loadProducts, 
+  addProduct, 
+  updateProduct, 
+  products as initialProducts 
+} from '@/data/products';
+import type { Product } from '@/data/products';
 import AdminProductFormComponent from '@/components/admin/AdminProductForm';
 import { toast } from 'sonner';
 
 // متغير عالمي لتتبع آخر معرف تم استخدامه
-let lastId = initialProducts.length > 0 
-  ? Math.max(...initialProducts.map(p => p.id)) 
-  : 0;
+let lastId = 0;
 
 const AdminProductForm = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,37 +25,53 @@ const AdminProductForm = () => {
   const isEditing = !!id;
   
   useEffect(() => {
-    if (isEditing) {
-      const productId = parseInt(id!);
-      const foundProduct = initialProducts.find(p => p.id === productId);
-      
-      if (foundProduct) {
-        setProduct(foundProduct);
-      } else {
-        toast.error('المنتج غير موجود');
-        navigate('/admin/products');
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        // تحميل المنتجات لضمان البيانات الأحدث
+        await loadProducts();
+        
+        // تحديث آخر معرف
+        lastId = initialProducts.length > 0 
+          ? Math.max(...initialProducts.map(p => p.id)) 
+          : 0;
+        
+        if (isEditing) {
+          const productId = parseInt(id!);
+          const foundProduct = initialProducts.find(p => p.id === productId);
+          
+          if (foundProduct) {
+            setProduct(foundProduct);
+          } else {
+            toast.error('المنتج غير موجود');
+            navigate('/admin/products');
+          }
+        }
+      } catch (error) {
+        console.error('Error loading product data:', error);
+        toast.error('حدث خطأ أثناء تحميل بيانات المنتج');
+      } finally {
+        setLoading(false);
       }
-    }
+    };
     
-    setLoading(false);
+    fetchData();
   }, [id, isEditing, navigate]);
   
   const handleSubmit = async (productData: Partial<Product>) => {
     setSubmitting(true);
     
     try {
-      // محاكاة للاتصال بالخادم
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
       if (isEditing && product) {
         // تحديث منتج موجود
-        const updatedProduct = { ...product, ...productData };
-        const index = initialProducts.findIndex(p => p.id === product.id);
+        const updatedProduct = { ...product, ...productData } as Product;
+        const success = await updateProduct(product.id, updatedProduct);
         
-        if (index !== -1) {
-          initialProducts[index] = updatedProduct as Product;
-          saveProducts(); // حفظ في localStorage
+        if (success) {
           toast.success('تم تحديث المنتج بنجاح');
+          navigate('/admin/products');
+        } else {
+          toast.error('فشل تحديث المنتج');
         }
       } else {
         // إنشاء منتج جديد
@@ -64,12 +84,15 @@ const AdminProductForm = () => {
           images: productData.images || [productData.image || '']
         } as Product;
         
-        initialProducts.push(newProduct);
-        saveProducts(); // حفظ في localStorage
-        toast.success('تم إضافة المنتج بنجاح');
+        const success = await addProduct(newProduct);
+        
+        if (success) {
+          toast.success('تم إضافة المنتج بنجاح');
+          navigate('/admin/products');
+        } else {
+          toast.error('فشل إضافة المنتج');
+        }
       }
-      
-      navigate('/admin/products');
     } catch (error) {
       toast.error('حدث خطأ أثناء حفظ المنتج');
       console.error('Error saving product:', error);
