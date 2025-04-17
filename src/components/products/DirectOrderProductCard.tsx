@@ -13,12 +13,15 @@ const DirectOrderProductCard = ({ product }: DirectOrderProductCardProps) => {
     ? Math.round(((product.oldPrice! - product.price) / product.oldPrice!) * 100) 
     : 0;
   
+  // Use the main image or the first image from the images array
+  const displayImage = product.image || (product.images && product.images.length > 0 ? product.images[0] : '');
+  
   return (
     <div className="group bg-white rounded-lg shadow-md overflow-hidden transition-all hover:shadow-lg">
       <div className="relative overflow-hidden">
         <Link to={`/product/${product.id}`}>
           <img 
-            src={product.image} 
+            src={displayImage} 
             alt={product.name} 
             className="w-full h-48 object-cover transition-transform group-hover:scale-105"
           />

@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
+import ImageUpload from './ImageUpload';
 import {
   Card,
   CardContent,
@@ -30,6 +31,7 @@ const AdminProductForm = ({ product, onSubmit, isLoading }: AdminProductFormProp
       price: 0,
       oldPrice: undefined,
       image: '',
+      images: [],
       specs: {
         processor: '',
         ram: '',
@@ -65,6 +67,15 @@ const AdminProductForm = ({ product, onSubmit, isLoading }: AdminProductFormProp
   
   const handleCheckboxChange = (name: string, checked: boolean) => {
     setFormData(prev => ({ ...prev, [name]: checked }));
+  };
+  
+  const handleImagesChange = (images: string[]) => {
+    setFormData(prev => ({ 
+      ...prev, 
+      images: images,
+      // Set the first image as the main product image
+      image: images.length > 0 ? images[0] : ''
+    }));
   };
   
   const handleSubmit = (e: React.FormEvent) => {
@@ -121,14 +132,14 @@ const AdminProductForm = ({ product, onSubmit, isLoading }: AdminProductFormProp
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="image">رابط الصورة</Label>
-            <Input
-              id="image"
-              name="image"
-              value={formData.image}
-              onChange={handleChange}
-              required
+            <Label>صور المنتج</Label>
+            <ImageUpload 
+              images={formData.images || []}
+              onChange={handleImagesChange}
             />
+            {formData.images?.length === 0 && (
+              <p className="text-xs text-red-500">يجب إضافة صورة واحدة على الأقل</p>
+            )}
           </div>
           
           <div className="space-y-2">
@@ -209,7 +220,11 @@ const AdminProductForm = ({ product, onSubmit, isLoading }: AdminProductFormProp
           </div>
         </CardContent>
         <CardFooter>
-          <Button type="submit" className="w-full rtl" disabled={isLoading}>
+          <Button 
+            type="submit" 
+            className="w-full rtl" 
+            disabled={isLoading || (formData.images?.length === 0)}
+          >
             {isLoading 
               ? 'جاري الحفظ...' 
               : isEditing 

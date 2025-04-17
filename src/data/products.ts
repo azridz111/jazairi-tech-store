@@ -6,6 +6,7 @@ export interface Product {
   price: number;
   oldPrice?: number;
   image: string;
+  images?: string[]; // Array to store multiple images
   specs: {
     processor: string;
     ram: string;
@@ -34,6 +35,7 @@ if (products.length === 0) {
     category: "laptops",
     price: 85000,
     image: "https://m.media-amazon.com/images/I/71jG+e7roXL._AC_SL1500_.jpg",
+    images: ["https://m.media-amazon.com/images/I/71jG+e7roXL._AC_SL1500_.jpg"],
     specs: {
       processor: "Intel Core i5-10300H",
       ram: "8GB DDR4",

@@ -58,7 +58,10 @@ const AdminProductForm = () => {
         const newId = ++lastId;
         const newProduct = { 
           id: newId,
-          ...productData
+          ...productData,
+          // Ensure we have both image and images array
+          image: productData.image || (productData.images && productData.images.length > 0 ? productData.images[0] : ''),
+          images: productData.images || [productData.image || '']
         } as Product;
         
         initialProducts.push(newProduct);
