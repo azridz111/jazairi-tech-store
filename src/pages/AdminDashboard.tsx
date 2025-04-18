@@ -45,10 +45,19 @@ const AdminDashboard = () => {
       setActiveTab('dashboard');
     }
     
-    // Count pending orders
-    const orders = getOrders();
-    const pendingCount = orders.filter(order => order.status === 'pending').length;
-    setPendingOrdersCount(pendingCount);
+    // Count pending orders - properly await the Promise
+    const fetchPendingOrders = async () => {
+      try {
+        const orders = await getOrders();
+        const pendingCount = orders.filter(order => order.status === 'pending').length;
+        setPendingOrdersCount(pendingCount);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+        setPendingOrdersCount(0);
+      }
+    };
+    
+    fetchPendingOrders();
   }, [location]);
   
   return (

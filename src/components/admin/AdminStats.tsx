@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Product, products } from '@/data/products';
-import { getOrders } from '@/services/orders';
+import { getOrders, Order } from '@/services/orders';
 import { 
   BarChart, 
   Bar, 
@@ -43,115 +43,123 @@ interface StatCard {
 
 const AdminStats = () => {
   const [stats, setStats] = useState<StatCard[]>([]);
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [dailySales, setDailySales] = useState<any[]>([]);
   const [statusData, setStatusData] = useState<any[]>([]);
   const [topProducts, setTopProducts] = useState<any[]>([]);
   
   useEffect(() => {
-    // Get real orders from localStorage
-    const realOrders = getOrders();
-    setOrders(realOrders);
-    
-    // Calculate order statistics
-    const totalOrders = realOrders.length;
-    const completedOrders = realOrders.filter(order => order.status === 'completed').length;
-    const pendingOrders = realOrders.filter(order => order.status === 'pending').length;
-    const cancelledOrders = realOrders.filter(order => order.status === 'cancelled').length;
-    
-    // Calculate total sales and profits (assuming 30% profit margin)
-    const totalSales = realOrders.reduce((sum, order) => 
-      order.status !== 'cancelled' ? sum + order.totalPrice : sum, 0);
-    const totalProfit = totalSales * 0.3; // 30% profit margin
-    
-    // Count in-stock products
-    const inStockProducts = products.filter(product => product.inStock).length;
-    
-    // Set the stats cards data
-    setStats([
-      {
-        title: 'إجمالي الطلبات',
-        value: totalOrders,
-        description: `${completedOrders} مكتمل، ${pendingOrders} قيد الانتظار`,
-        icon: <ShoppingBag className="h-8 w-8 text-blue-600" />,
-        change: totalOrders > 0 ? '+' + totalOrders : '0',
-        trend: 'up'
-      },
-      {
-        title: 'إجمالي المبيعات',
-        value: `${(totalSales).toLocaleString()} د.ج`,
-        description: `${totalProfit.toLocaleString()} د.ج أرباح تقديرية`,
-        icon: <DollarSign className="h-8 w-8 text-green-600" />,
-        change: '+' + (totalSales > 0 ? '30%' : '0%'),
-        trend: 'up'
-      },
-      {
-        title: 'المنتجات المتوفرة',
-        value: inStockProducts,
-        description: `من أصل ${products.length} منتج`,
-        icon: <Package className="h-8 w-8 text-amber-600" />,
-      },
-      {
-        title: 'نسبة إكمال الطلبات',
-        value: totalOrders > 0 ? `${Math.round((completedOrders / totalOrders) * 100)}%` : '0%',
-        description: `${completedOrders} من ${totalOrders} طلب`,
-        icon: <Check className="h-8 w-8 text-purple-600" />,
-      }
-    ]);
+    // Fetch and process orders data
+    const fetchAndProcessOrders = async () => {
+      try {
+        // Get real orders using await to resolve the promise
+        const realOrders = await getOrders();
+        setOrders(realOrders);
+        
+        // Calculate order statistics
+        const totalOrders = realOrders.length;
+        const completedOrders = realOrders.filter(order => order.status === 'completed').length;
+        const pendingOrders = realOrders.filter(order => order.status === 'pending').length;
+        const cancelledOrders = realOrders.filter(order => order.status === 'cancelled').length;
+        
+        // Calculate total sales and profits (assuming 30% profit margin)
+        const totalSales = realOrders.reduce((sum, order) => 
+          order.status !== 'cancelled' ? sum + order.totalPrice : sum, 0);
+        const totalProfit = totalSales * 0.3; // 30% profit margin
+        
+        // Count in-stock products
+        const inStockProducts = products.filter(product => product.inStock).length;
+        
+        // Set the stats cards data
+        setStats([
+          {
+            title: 'إجمالي الطلبات',
+            value: totalOrders,
+            description: `${completedOrders} مكتمل، ${pendingOrders} قيد الانتظار`,
+            icon: <ShoppingBag className="h-8 w-8 text-blue-600" />,
+            change: totalOrders > 0 ? '+' + totalOrders : '0',
+            trend: 'up'
+          },
+          {
+            title: 'إجمالي المبيعات',
+            value: `${(totalSales).toLocaleString()} د.ج`,
+            description: `${totalProfit.toLocaleString()} د.ج أرباح تقديرية`,
+            icon: <DollarSign className="h-8 w-8 text-green-600" />,
+            change: '+' + (totalSales > 0 ? '30%' : '0%'),
+            trend: 'up'
+          },
+          {
+            title: 'المنتجات المتوفرة',
+            value: inStockProducts,
+            description: `من أصل ${products.length} منتج`,
+            icon: <Package className="h-8 w-8 text-amber-600" />,
+          },
+          {
+            title: 'نسبة إكمال الطلبات',
+            value: totalOrders > 0 ? `${Math.round((completedOrders / totalOrders) * 100)}%` : '0%',
+            description: `${completedOrders} من ${totalOrders} طلب`,
+            icon: <Check className="h-8 w-8 text-purple-600" />,
+          }
+        ]);
 
-    // Prepare data for charts
+        // Prepare data for charts
+        
+        // Daily sales data for last 7 days
+        const last7Days = Array.from({ length: 7 }, (_, i) => {
+          const date = new Date();
+          date.setDate(date.getDate() - i);
+          return date.toISOString().split('T')[0];
+        }).reverse();
+        
+        const dailySalesData = last7Days.map(day => {
+          const dayOrders = realOrders.filter(order => 
+            order.date.split('T')[0] === day && order.status !== 'cancelled'
+          );
+          const daySales = dayOrders.reduce((sum, order) => sum + order.totalPrice, 0);
+          
+          return {
+            day: day.split('-').slice(1).join('/'), // Format as MM/DD
+            sales: daySales,
+          };
+        });
+        
+        setDailySales(dailySalesData);
+        
+        // Order status distribution
+        const statusDistribution = [
+          { name: 'مكتمل', value: completedOrders, color: '#16a34a' },
+          { name: 'قيد الانتظار', value: pendingOrders, color: '#3b82f6' },
+          { name: 'ملغي', value: cancelledOrders, color: '#ef4444' }
+        ];
+        
+        setStatusData(statusDistribution);
+        
+        // Top products by order count
+        const productOrders = new Map();
+        realOrders.forEach(order => {
+          const count = productOrders.get(order.productId) || 0;
+          productOrders.set(order.productId, count + 1);
+        });
+        
+        const topProductsData = Array.from(productOrders.entries())
+          .map(([productId, count]) => {
+            const product = products.find(p => p.id === productId);
+            return {
+              id: productId,
+              name: product ? product.name : 'منتج غير معروف',
+              count
+            };
+          })
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 5);
+        
+        setTopProducts(topProductsData);
+      } catch (error) {
+        console.error("Error processing orders:", error);
+      }
+    };
     
-    // Daily sales data for last 7 days
-    const last7Days = Array.from({ length: 7 }, (_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      return date.toISOString().split('T')[0];
-    }).reverse();
-    
-    const dailySalesData = last7Days.map(day => {
-      const dayOrders = realOrders.filter(order => 
-        order.date.split('T')[0] === day && order.status !== 'cancelled'
-      );
-      const daySales = dayOrders.reduce((sum, order) => sum + order.totalPrice, 0);
-      
-      return {
-        day: day.split('-').slice(1).join('/'), // Format as MM/DD
-        sales: daySales,
-      };
-    });
-    
-    setDailySales(dailySalesData);
-    
-    // Order status distribution
-    const statusDistribution = [
-      { name: 'مكتمل', value: completedOrders, color: '#16a34a' },
-      { name: 'قيد الانتظار', value: pendingOrders, color: '#3b82f6' },
-      { name: 'ملغي', value: cancelledOrders, color: '#ef4444' }
-    ];
-    
-    setStatusData(statusDistribution);
-    
-    // Top products by order count
-    const productOrders = new Map();
-    realOrders.forEach(order => {
-      const count = productOrders.get(order.productId) || 0;
-      productOrders.set(order.productId, count + 1);
-    });
-    
-    const topProductsData = Array.from(productOrders.entries())
-      .map(([productId, count]) => {
-        const product = products.find(p => p.id === productId);
-        return {
-          id: productId,
-          name: product ? product.name : 'منتج غير معروف',
-          count
-        };
-      })
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
-    
-    setTopProducts(topProductsData);
-    
+    fetchAndProcessOrders();
   }, []);
   
   return (

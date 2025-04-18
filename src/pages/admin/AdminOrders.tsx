@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Eye, Trash2, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -39,10 +40,11 @@ const AdminOrders = () => {
     loadOrders();
   }, []);
   
-  const loadOrders = () => {
+  const loadOrders = async () => {
     setLoading(true);
     try {
-      const ordersList = getOrders();
+      // Properly await the Promise result
+      const ordersList = await getOrders();
       setOrders(ordersList);
     } catch (error) {
       console.error('Error loading orders:', error);
@@ -56,10 +58,10 @@ const AdminOrders = () => {
     setSearchTerm(e.target.value);
   };
   
-  const handleDeleteOrder = (id: string) => {
+  const handleDeleteOrder = async (id: string) => {
     if (window.confirm('هل أنت متأكد من حذف هذا الطلب؟')) {
       try {
-        const deleted = deleteOrder(id);
+        const deleted = await deleteOrder(id);
         
         if (deleted) {
           setOrders(prev => prev.filter(order => order.id !== id));
@@ -74,9 +76,9 @@ const AdminOrders = () => {
     }
   };
   
-  const handleChangeOrderStatus = (id: string, newStatus: 'pending' | 'completed' | 'cancelled') => {
+  const handleChangeOrderStatus = async (id: string, newStatus: 'pending' | 'completed' | 'cancelled') => {
     try {
-      const updated = updateOrderStatus(id, newStatus);
+      const updated = await updateOrderStatus(id, newStatus);
       
       if (updated) {
         setOrders(prev => 

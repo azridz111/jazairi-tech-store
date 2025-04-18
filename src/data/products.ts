@@ -95,7 +95,19 @@ export const addProduct = async (product: Product): Promise<boolean> => {
 // تحديث منتج موجود
 export const updateProduct = async (id: number, updatedProduct: Product): Promise<boolean> => {
   try {
-    await db.products.update(id, updatedProduct);
+    // Use the correct syntax for Dexie update - pass changes as an object
+    await db.products.update(id, {
+      name: updatedProduct.name,
+      category: updatedProduct.category,
+      price: updatedProduct.price,
+      oldPrice: updatedProduct.oldPrice,
+      image: updatedProduct.image,
+      images: updatedProduct.images,
+      specs: updatedProduct.specs,
+      inStock: updatedProduct.inStock,
+      description: updatedProduct.description
+    });
+    
     const index = productsCache.findIndex(p => p.id === id);
     if (index !== -1) {
       productsCache[index] = updatedProduct;
