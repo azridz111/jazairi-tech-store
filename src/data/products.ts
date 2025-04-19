@@ -76,7 +76,20 @@ export const addProduct = async (product: Product): Promise<boolean> => {
 // Update an existing product
 export const updateProduct = async (id: number, updatedProduct: Product): Promise<boolean> => {
   try {
-    await db.products.update(id, updatedProduct);
+    // Fixed: Use the correct update method with a proper changes object
+    // First parameter is the key (id), second parameter is the changes to apply
+    await db.products.update(id, { 
+      name: updatedProduct.name,
+      category: updatedProduct.category,
+      price: updatedProduct.price,
+      oldPrice: updatedProduct.oldPrice,
+      image: updatedProduct.image,
+      images: updatedProduct.images,
+      specs: updatedProduct.specs,
+      inStock: updatedProduct.inStock,
+      description: updatedProduct.description
+    });
+    
     await refreshProductsCache();
     return true;
   } catch (error) {
