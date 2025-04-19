@@ -35,10 +35,10 @@ export const initializeDatabase = async () => {
     if (productsCount === 0) {
       console.log('No products found in database, initializing...');
       // If no products are in the database, create a default product
-      const defaultProduct = {
+      const defaultProduct: Product = {
         id: 1,
         name: "حاسوب محمول HP Pavilion",
-        category: "laptops",
+        category: "laptops", // Explicitly set to "laptops" to match the Product type
         price: 85000,
         image: "https://m.media-amazon.com/images/I/71jG+e7roXL._AC_SL1500_.jpg",
         images: ["https://m.media-amazon.com/images/I/71jG+e7roXL._AC_SL1500_.jpg"],
