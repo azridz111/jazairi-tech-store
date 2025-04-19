@@ -61,7 +61,7 @@ export const loadProducts = async (): Promise<Product[]> => {
   }
 };
 
-// تصدير المنتجات كمصفوفة للاستخدام في التطبيق (ستبقى فارغة حتى يتم تحميلها)
+// تصدير المنتجات كمصفوفة للاستخدام في التطبيق
 export const products: Product[] = productsCache;
 
 // تحديث قاعدة البيانات عند تغيير المنتجات
@@ -72,19 +72,41 @@ export const saveProducts = async () => {
     // إضافة المنتجات المحدثة
     await db.products.bulkAdd(productsCache);
     
-    // نحتفظ أيضًا بنسخة محلية لدعم الاتصال غير المتصل
-    localStorage.setItem('products', JSON.stringify(productsCache));
+    // نحذف استخدام localStorage لتجنب مشكلة تجاوز الحد الأقصى للتخزين
+    // localStorage.setItem('products', JSON.stringify(productsCache));
   } catch (error) {
     console.error('Error saving products:', error);
+  }
+};
+
+// تحديد آخر معرف مستخدم في قاعدة البيانات
+export const getMaxProductId = async (): Promise<number> => {
+  try {
+    const maxId = await db.products.orderBy('id').reverse().first();
+    return maxId ? maxId.id : 0;
+  } catch (error) {
+    console.error('Error getting max product ID:', error);
+    return 0;
   }
 };
 
 // إضافة منتج جديد
 export const addProduct = async (product: Product): Promise<boolean> => {
   try {
-    await db.products.add(product);
-    productsCache.push(product);
-    localStorage.setItem('products', JSON.stringify(productsCache));
+    // التأكد من أن المعرف فريد
+    const maxId = await getMaxProductId();
+    const newId = maxId + 1;
+    const productWithNewId = { ...product, id: newId };
+    
+    // إضافة المنتج إلى قاعدة البيانات
+    await db.products.add(productWithNewId);
+    
+    // تحديث ذاكرة التخزين المؤقت
+    productsCache.push(productWithNewId);
+    
+    // نحذف استخدام localStorage لتجنب مشكلة تجاوز الحد الأقصى للتخزين
+    // localStorage.setItem('products', JSON.stringify(productsCache));
+    
     return true;
   } catch (error) {
     console.error('Error adding product:', error);
@@ -95,7 +117,7 @@ export const addProduct = async (product: Product): Promise<boolean> => {
 // تحديث منتج موجود
 export const updateProduct = async (id: number, updatedProduct: Product): Promise<boolean> => {
   try {
-    // Use the correct syntax for Dexie update - pass changes as an object
+    // استخدام الصيغة الصحيحة لتحديث البيانات في Dexie
     await db.products.update(id, {
       name: updatedProduct.name,
       category: updatedProduct.category,
@@ -111,7 +133,8 @@ export const updateProduct = async (id: number, updatedProduct: Product): Promis
     const index = productsCache.findIndex(p => p.id === id);
     if (index !== -1) {
       productsCache[index] = updatedProduct;
-      localStorage.setItem('products', JSON.stringify(productsCache));
+      // نحذف استخدام localStorage لتجنب مشكلة تجاوز الحد الأقصى للتخزين
+      // localStorage.setItem('products', JSON.stringify(productsCache));
     }
     return true;
   } catch (error) {
@@ -125,7 +148,8 @@ export const deleteProduct = async (id: number): Promise<boolean> => {
   try {
     await db.products.delete(id);
     productsCache = productsCache.filter(p => p.id !== id);
-    localStorage.setItem('products', JSON.stringify(productsCache));
+    // نحذف استخدام localStorage لتجنب مشكلة تجاوز الحد الأقصى للتخزين
+    // localStorage.setItem('products', JSON.stringify(productsCache));
     return true;
   } catch (error) {
     console.error('Error deleting product:', error);

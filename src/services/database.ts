@@ -33,27 +33,39 @@ export const initializeDatabase = async () => {
     const productsCount = await db.products.count();
     
     if (productsCount === 0) {
-      // If no products are in the database, get from localStorage and add them
-      const storedProducts = localStorage.getItem('products');
-      if (storedProducts) {
-        const products: Product[] = JSON.parse(storedProducts);
-        await db.products.bulkAdd(products);
-        console.log('Initialized products from localStorage');
-      }
+      console.log('No products found in database, initializing...');
+      // If no products are in the database, create a default product
+      const defaultProduct = {
+        id: 1,
+        name: "حاسوب محمول HP Pavilion",
+        category: "laptops",
+        price: 85000,
+        image: "https://m.media-amazon.com/images/I/71jG+e7roXL._AC_SL1500_.jpg",
+        images: ["https://m.media-amazon.com/images/I/71jG+e7roXL._AC_SL1500_.jpg"],
+        specs: {
+          processor: "Intel Core i5-10300H",
+          ram: "8GB DDR4",
+          storage: "512GB SSD",
+          gpu: "NVIDIA GTX 1650",
+          display: "15.6 بوصة FHD"
+        },
+        inStock: true,
+        description: "حاسوب محمول قوي لجميع الاستخدامات اليومية والألعاب الخفيفة."
+      };
+      
+      await db.products.add(defaultProduct);
+      console.log('Default product added to database');
     }
     
     // Check if orders exist in the database
     const ordersCount = await db.orders.count();
     
     if (ordersCount === 0) {
-      // If no orders are in the database, get from localStorage and add them
-      const storedOrders = localStorage.getItem('orders');
-      if (storedOrders) {
-        const orders: Order[] = JSON.parse(storedOrders);
-        await db.orders.bulkAdd(orders);
-        console.log('Initialized orders from localStorage');
-      }
+      console.log('No orders found in database');
+      // We don't need to initialize orders with default data
     }
+    
+    console.log('Database initialized successfully');
   } catch (error) {
     console.error('Error initializing database:', error);
   }

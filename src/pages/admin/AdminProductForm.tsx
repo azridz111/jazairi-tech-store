@@ -6,14 +6,12 @@ import {
   loadProducts, 
   addProduct, 
   updateProduct, 
-  products as initialProducts 
+  products as initialProducts,
+  getMaxProductId 
 } from '@/data/products';
 import type { Product } from '@/data/products';
 import AdminProductFormComponent from '@/components/admin/AdminProductForm';
 import { toast } from 'sonner';
-
-// متغير عالمي لتتبع آخر معرف تم استخدامه
-let lastId = 0;
 
 const AdminProductForm = () => {
   const { id } = useParams<{ id: string }>();
@@ -30,11 +28,6 @@ const AdminProductForm = () => {
       try {
         // تحميل المنتجات لضمان البيانات الأحدث
         await loadProducts();
-        
-        // تحديث آخر معرف
-        lastId = initialProducts.length > 0 
-          ? Math.max(...initialProducts.map(p => p.id)) 
-          : 0;
         
         if (isEditing) {
           const productId = parseInt(id!);
@@ -75,9 +68,9 @@ const AdminProductForm = () => {
         }
       } else {
         // إنشاء منتج جديد
-        const newId = ++lastId;
+        // نستخدم هنا معرف جديد سيتم تعيينه في وظيفة addProduct
         const newProduct = { 
-          id: newId,
+          id: -1, // سيتم تجاهل هذه القيمة وتعيين معرف جديد في addProduct
           ...productData,
           // Ensure we have both image and images array
           image: productData.image || (productData.images && productData.images.length > 0 ? productData.images[0] : ''),
