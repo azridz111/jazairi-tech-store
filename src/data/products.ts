@@ -71,9 +71,6 @@ export const saveProducts = async () => {
     await db.products.clear();
     // إضافة المنتجات المحدثة
     await db.products.bulkAdd(productsCache);
-    
-    // نحذف استخدام localStorage لتجنب مشكلة تجاوز الحد الأقصى للتخزين
-    // localStorage.setItem('products', JSON.stringify(productsCache));
   } catch (error) {
     console.error('Error saving products:', error);
   }
@@ -82,8 +79,8 @@ export const saveProducts = async () => {
 // تحديد آخر معرف مستخدم في قاعدة البيانات
 export const getMaxProductId = async (): Promise<number> => {
   try {
-    const maxId = await db.products.orderBy('id').reverse().first();
-    return maxId ? maxId.id : 0;
+    const maxProduct = await db.products.orderBy('id').reverse().first();
+    return maxProduct ? maxProduct.id : 0;
   } catch (error) {
     console.error('Error getting max product ID:', error);
     return 0;
@@ -102,10 +99,7 @@ export const addProduct = async (product: Product): Promise<boolean> => {
     await db.products.add(productWithNewId);
     
     // تحديث ذاكرة التخزين المؤقت
-    productsCache.push(productWithNewId);
-    
-    // نحذف استخدام localStorage لتجنب مشكلة تجاوز الحد الأقصى للتخزين
-    // localStorage.setItem('products', JSON.stringify(productsCache));
+    productsCache = [...productsCache, productWithNewId];
     
     return true;
   } catch (error) {
@@ -130,12 +124,9 @@ export const updateProduct = async (id: number, updatedProduct: Product): Promis
       description: updatedProduct.description
     });
     
-    const index = productsCache.findIndex(p => p.id === id);
-    if (index !== -1) {
-      productsCache[index] = updatedProduct;
-      // نحذف استخدام localStorage لتجنب مشكلة تجاوز الحد الأقصى للتخزين
-      // localStorage.setItem('products', JSON.stringify(productsCache));
-    }
+    // تحديث ذاكرة التخزين المؤقت
+    productsCache = productsCache.map(p => p.id === id ? updatedProduct : p);
+    
     return true;
   } catch (error) {
     console.error('Error updating product:', error);
@@ -148,8 +139,6 @@ export const deleteProduct = async (id: number): Promise<boolean> => {
   try {
     await db.products.delete(id);
     productsCache = productsCache.filter(p => p.id !== id);
-    // نحذف استخدام localStorage لتجنب مشكلة تجاوز الحد الأقصى للتخزين
-    // localStorage.setItem('products', JSON.stringify(productsCache));
     return true;
   } catch (error) {
     console.error('Error deleting product:', error);

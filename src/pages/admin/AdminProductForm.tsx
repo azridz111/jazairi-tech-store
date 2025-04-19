@@ -70,7 +70,7 @@ const AdminProductForm = () => {
         // إنشاء منتج جديد
         // نستخدم هنا معرف جديد سيتم تعيينه في وظيفة addProduct
         const newProduct = { 
-          id: -1, // سيتم تجاهل هذه القيمة وتعيين معرف جديد في addProduct
+          id: 0, // سيتم تجاهل هذه القيمة وتعيين معرف جديد في addProduct
           ...productData,
           // Ensure we have both image and images array
           image: productData.image || (productData.images && productData.images.length > 0 ? productData.images[0] : ''),
