@@ -1,35 +1,18 @@
 
-import db from '../services/database';
-
-export interface Product {
-  id: number;
-  name: string;
-  category: string;
-  price: number;
-  oldPrice?: number;
-  image: string;
-  images?: string[]; // Array to store multiple images
-  specs: {
-    processor: string;
-    ram: string;
-    storage: string;
-    gpu: string;
-    display: string;
-  };
-  inStock: boolean;
-  description: string;
-}
+import type { Product } from '@/data/products';
 
 // مخزن مؤقت للمنتجات
 let productsCache: Product[] = [];
 
-// استيراد المنتجات من قاعدة البيانات
+// استيراد المنتجات من التخزين المحلي
 export const loadProducts = async (): Promise<Product[]> => {
   try {
-    const dbProducts = await db.products.toArray();
+    const savedProducts = localStorage.getItem('products');
     
-    // إضافة حاسوب محمول افتراضي إذا كانت القائمة فارغة
-    if (dbProducts.length === 0) {
+    if (savedProducts) {
+      productsCache = JSON.parse(savedProducts);
+    } else {
+      // إضافة حاسوب محمول افتراضي إذا كانت القائمة فارغة
       const defaultLaptop: Product = {
         id: 1,
         name: "حاسوب محمول HP Pavilion",
@@ -48,10 +31,8 @@ export const loadProducts = async (): Promise<Product[]> => {
         description: "حاسوب محمول قوي لجميع الاستخدامات اليومية والألعاب الخفيفة."
       };
       
-      await db.products.add(defaultLaptop);
       productsCache = [defaultLaptop];
-    } else {
-      productsCache = dbProducts;
+      localStorage.setItem('products', JSON.stringify(productsCache));
     }
     
     return productsCache;
@@ -64,23 +45,21 @@ export const loadProducts = async (): Promise<Product[]> => {
 // تصدير المنتجات كمصفوفة للاستخدام في التطبيق
 export const products: Product[] = productsCache;
 
-// تحديث قاعدة البيانات عند تغيير المنتجات
+// تحديث التخزين المحلي عند تغيير المنتجات
 export const saveProducts = async () => {
   try {
-    // حذف جميع المنتجات الحالية
-    await db.products.clear();
-    // إضافة المنتجات المحدثة
-    await db.products.bulkAdd(productsCache);
+    localStorage.setItem('products', JSON.stringify(productsCache));
   } catch (error) {
     console.error('Error saving products:', error);
   }
 };
 
-// تحديد آخر معرف مستخدم في قاعدة البيانات
+// تحديد آخر معرف مستخدم
 export const getMaxProductId = async (): Promise<number> => {
   try {
-    const maxProduct = await db.products.orderBy('id').reverse().first();
-    return maxProduct ? maxProduct.id : 0;
+    if (productsCache.length === 0) return 0;
+    const maxId = Math.max(...productsCache.map(p => p.id));
+    return maxId;
   } catch (error) {
     console.error('Error getting max product ID:', error);
     return 0;
@@ -92,14 +71,13 @@ export const addProduct = async (product: Product): Promise<boolean> => {
   try {
     // التأكد من أن المعرف فريد
     const maxId = await getMaxProductId();
-    const newId = maxId + 1;
-    const productWithNewId = { ...product, id: newId };
+    const productWithNewId = { ...product, id: maxId + 1 };
     
-    // إضافة المنتج إلى قاعدة البيانات
-    await db.products.add(productWithNewId);
+    // إضافة المنتج إلى الذاكرة المؤقتة
+    productsCache.push(productWithNewId);
     
-    // تحديث ذاكرة التخزين المؤقت
-    productsCache = [...productsCache, productWithNewId];
+    // حفظ في التخزين المحلي
+    localStorage.setItem('products', JSON.stringify(productsCache));
     
     return true;
   } catch (error) {
@@ -111,22 +89,11 @@ export const addProduct = async (product: Product): Promise<boolean> => {
 // تحديث منتج موجود
 export const updateProduct = async (id: number, updatedProduct: Product): Promise<boolean> => {
   try {
-    // استخدام الصيغة الصحيحة لتحديث البيانات في Dexie
-    await db.products.update(id, {
-      name: updatedProduct.name,
-      category: updatedProduct.category,
-      price: updatedProduct.price,
-      oldPrice: updatedProduct.oldPrice,
-      image: updatedProduct.image,
-      images: updatedProduct.images,
-      specs: updatedProduct.specs,
-      inStock: updatedProduct.inStock,
-      description: updatedProduct.description
-    });
-    
-    // تحديث ذاكرة التخزين المؤقت
-    productsCache = productsCache.map(p => p.id === id ? updatedProduct : p);
-    
+    const index = productsCache.findIndex(p => p.id === id);
+    if (index !== -1) {
+      productsCache[index] = updatedProduct;
+      localStorage.setItem('products', JSON.stringify(productsCache));
+    }
     return true;
   } catch (error) {
     console.error('Error updating product:', error);
@@ -137,8 +104,8 @@ export const updateProduct = async (id: number, updatedProduct: Product): Promis
 // حذف منتج
 export const deleteProduct = async (id: number): Promise<boolean> => {
   try {
-    await db.products.delete(id);
     productsCache = productsCache.filter(p => p.id !== id);
+    localStorage.setItem('products', JSON.stringify(productsCache));
     return true;
   } catch (error) {
     console.error('Error deleting product:', error);

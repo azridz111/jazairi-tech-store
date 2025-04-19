@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
@@ -6,8 +5,7 @@ import {
   loadProducts, 
   addProduct, 
   updateProduct, 
-  products as initialProducts,
-  getMaxProductId 
+  products as initialProducts
 } from '@/data/products';
 import type { Product } from '@/data/products';
 import AdminProductFormComponent from '@/components/admin/AdminProductForm';
@@ -67,10 +65,9 @@ const AdminProductForm = () => {
           toast.error('فشل تحديث المنتج');
         }
       } else {
-        // إنشاء منتج جديد
-        // نستخدم هنا معرف جديد سيتم تعيينه في وظيفة addProduct
+        // إضافة منتج جديد
         const newProduct = { 
-          id: 0, // سيتم تجاهل هذه القيمة وتعيين معرف جديد في addProduct
+          id: 1, // سيتم تحديثه تلقائياً في addProduct
           ...productData,
           // Ensure we have both image and images array
           image: productData.image || (productData.images && productData.images.length > 0 ? productData.images[0] : ''),
