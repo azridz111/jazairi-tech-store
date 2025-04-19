@@ -1,5 +1,23 @@
 
-import type { Product } from '@/data/products';
+// Define Product type and export it
+export interface Product {
+  id: number;
+  name: string;
+  category: 'laptops' | 'desktops' | 'accessories' | 'components';
+  price: number;
+  oldPrice?: number;
+  image: string;
+  images: string[];
+  specs: {
+    processor: string;
+    ram: string;
+    storage: string;
+    gpu: string;
+    display: string;
+  };
+  inStock: boolean;
+  description: string;
+}
 
 // مخزن مؤقت للمنتجات
 let productsCache: Product[] = [];
