@@ -26,7 +26,7 @@ class AlgerianLaptopsDB extends Dexie {
 // Create database instance
 const db = new AlgerianLaptopsDB();
 
-// Initialize the database with data from localStorage if needed
+// Initialize the database with data if needed
 export const initializeDatabase = async () => {
   try {
     // Check if products exist in the database

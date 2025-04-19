@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { loadProducts, deleteProduct, products, updateProduct } from '@/data/products';
+import { deleteProduct, updateProduct, refreshProductsCache } from '@/data/products';
 import AdminProductList from '@/components/admin/AdminProductList';
 import { toast } from 'sonner';
 import type { Product } from '@/data/products';
@@ -15,12 +15,12 @@ const AdminProducts = () => {
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    // تحميل المنتجات
+    // Load products
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        await loadProducts();
-        setProductsList([...products]);
+        const products = await refreshProductsCache();
+        setProductsList(products);
       } catch (error) {
         console.error('Error loading products:', error);
         toast.error('حدث خطأ أثناء تحميل المنتجات');
@@ -41,14 +41,14 @@ const AdminProducts = () => {
   );
   
   const handleDelete = async (id: number) => {
-    // التأكيد قبل الحذف
+    // Confirm before deleting
     if (window.confirm('هل أنت متأكد من رغبتك في حذف هذا المنتج؟')) {
       try {
-        // حذف المنتج من قاعدة البيانات
+        // Delete the product from the database
         const success = await deleteProduct(id);
         
         if (success) {
-          // تحديث حالة التطبيق المحلية
+          // Update local state
           setProductsList(prev => prev.filter(product => product.id !== id));
           toast.success('تم حذف المنتج بنجاح');
         } else {
@@ -63,7 +63,7 @@ const AdminProducts = () => {
   
   const handleToggleStock = async (id: number, inStock: boolean) => {
     try {
-      // إيجاد المنتج في القائمة
+      // Find the product in the list
       const product = productsList.find(p => p.id === id);
       
       if (!product) {
@@ -71,14 +71,14 @@ const AdminProducts = () => {
         return;
       }
       
-      // تحديث حالة المخزون
+      // Update stock status
       const updatedProduct = { ...product, inStock };
       
-      // تحديث في قاعدة البيانات
+      // Update in database
       const success = await updateProduct(id, updatedProduct);
       
       if (success) {
-        // تحديث حالة التطبيق المحلية
+        // Update local state
         setProductsList(productsList.map(product => 
           product.id === id ? { ...product, inStock } : product
         ));

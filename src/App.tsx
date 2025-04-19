@@ -9,7 +9,7 @@ import { useEffect } from "react";
 import { AuthProvider } from '@/context/AuthContext';
 import { CartProvider } from '@/context/CartContext';
 import { initializeDatabase } from '@/services/database';
-import { loadProducts } from '@/data/products';
+import { refreshProductsCache } from '@/data/products';
 
 import Index from "./pages/Index";
 import ProductsPage from "./pages/ProductsPage";
@@ -29,7 +29,7 @@ const App = () => {
   useEffect(() => {
     const init = async () => {
       await initializeDatabase();
-      await loadProducts();
+      await refreshProductsCache();
     };
     
     init().catch(error => {

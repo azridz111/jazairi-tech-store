@@ -1,15 +1,16 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { 
-  loadProducts, 
   addProduct, 
-  updateProduct, 
-  products as initialProducts
+  updateProduct,
+  refreshProductsCache
 } from '@/data/products';
 import type { Product } from '@/data/products';
 import AdminProductFormComponent from '@/components/admin/AdminProductForm';
 import { toast } from 'sonner';
+import db from '@/services/database';
 
 const AdminProductForm = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,12 +25,12 @@ const AdminProductForm = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // تحميل المنتجات لضمان البيانات الأحدث
-        await loadProducts();
+        // Get fresh data
+        await refreshProductsCache();
         
         if (isEditing) {
           const productId = parseInt(id!);
-          const foundProduct = initialProducts.find(p => p.id === productId);
+          const foundProduct = await db.products.get(productId);
           
           if (foundProduct) {
             setProduct(foundProduct);
@@ -54,7 +55,7 @@ const AdminProductForm = () => {
     
     try {
       if (isEditing && product) {
-        // تحديث منتج موجود
+        // Update existing product
         const updatedProduct = { ...product, ...productData } as Product;
         const success = await updateProduct(product.id, updatedProduct);
         
@@ -65,9 +66,9 @@ const AdminProductForm = () => {
           toast.error('فشل تحديث المنتج');
         }
       } else {
-        // إضافة منتج جديد
+        // Add new product
         const newProduct = { 
-          id: 1, // سيتم تحديثه تلقائياً في addProduct
+          id: 1, // Will be updated automatically in addProduct
           ...productData,
           // Ensure we have both image and images array
           image: productData.image || (productData.images && productData.images.length > 0 ? productData.images[0] : ''),
