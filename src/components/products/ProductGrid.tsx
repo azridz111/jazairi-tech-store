@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Product, products } from '@/data/products';
+import { Product, refreshProductsCache } from '@/data/products';
 import DirectOrderProductCard from './DirectOrderProductCard';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,10 +16,29 @@ import { Checkbox } from '@/components/ui/checkbox';
 
 const ProductGrid = () => {
   const [searchParams] = useSearchParams();
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [inStockOnly, setInStockOnly] = useState(false);
   const [sortOrder, setSortOrder] = useState('');
+  const [loading, setLoading] = useState(true);
+  
+  // Load products from database
+  useEffect(() => {
+    const loadProducts = async () => {
+      setLoading(true);
+      try {
+        const products = await refreshProductsCache();
+        setAllProducts(products);
+      } catch (error) {
+        console.error('Error loading products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadProducts();
+  }, []);
   
   // Get the search term from URL if available
   useEffect(() => {
@@ -32,7 +51,7 @@ const ProductGrid = () => {
   
   // Filter products based on search term and availability
   useEffect(() => {
-    let result = [...products];
+    let result = [...allProducts];
     
     // Only show laptops
     result = result.filter(product => product.category === 'laptops');
@@ -62,7 +81,17 @@ const ProductGrid = () => {
     }
     
     setFilteredProducts(result);
-  }, [searchTerm, inStockOnly, sortOrder]);
+  }, [allProducts, searchTerm, inStockOnly, sortOrder]);
+  
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <p className="text-lg rtl">جاري تحميل المنتجات...</p>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="container mx-auto px-4 py-8">
